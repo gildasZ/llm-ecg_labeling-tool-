@@ -1,0 +1,660 @@
+
+<!-- Section 2: CSV Data Upload Trigger -->
+<style>
+    .csv-upload-section2 {
+        padding: 10px;
+        height: 50px;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center; /* Center text vertically */
+        justify-content: center; /* Center text horizontally */
+        border-bottom: 1px solid grey; /* Styling for the section divider */
+    }
+    .csv-upload-button {
+        width: calc(100% - 20px); /* Adjust width to account for padding */
+        height: 30px; /* Set a fixed height for the button */
+        /* display: flex; Use flexbox to center text inside the button */
+        display: inline-flex; /* Allow status message beside it */
+        align-items: center; /* Center text vertically */
+        justify-content: center; /* Center text horizontally */
+        background-color: #555;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.2s;
+    }
+    .csv-upload-button:hover {
+        background-color: #666666; /* Slightly different shade for better visibility */
+        cursor: pointer;
+    }
+    .csv-upload-button:active {
+        transform: scale(0.98);
+        background-color: #444444; /* Adjust for a darker active state */
+        cursor: pointer;
+    }
+
+    .csv-upload-button.uploading {
+        background-color: #777; /* Indicate activity */
+        cursor: not-allowed;
+    }
+
+    .csv-upload-data-modal { /* Prefixed */
+        display: none; /* Hidden by default */
+        position: fixed;
+        z-index: 2000; /* High z-index */
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgba(0,0,0,0.6); /* Dim background */
+        justify-content: center; /* Center horizontally */
+        align-items: center; /* Center vertically */
+    }
+
+    .csv-upload-data-content { /* Prefixed */
+        background-color: #3a3a3a; /* Dark background */
+        color: #e0e0e0; /* Light text */
+        margin: auto;
+        padding: 25px;
+        border: 1px solid #888;
+        width: 80%; /* Wider modal */
+        max-width: 700px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        display: flex;
+        flex-direction: column;
+        gap: 15px; /* Space between elements */
+    }
+
+    .csv-upload-data-content h3 {
+        margin-top: 0;
+        text-align: center;
+        color: #ffffff;
+    }
+
+    .csv-upload-modal-section { /* Prefixed */
+        border: 1px dashed #666;
+        padding: 10px;
+        border-radius: 5px;
+    }
+
+    .csv-upload-modal-section h4 {
+        margin-top: 0;
+        margin-bottom: 8px;
+        color: #cccccc;
+        border-bottom: 1px solid #555;
+        padding-bottom: 5px;
+    }
+
+    /* Style for file/dir selection buttons */
+    .csv-upload-select-button { /* Prefixed */
+        background-color: #555;
+        color: white;
+        padding: 8px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-right: 10px;
+        transition: background-color 0.2s;
+    }
+    .csv-upload-select-button:hover {
+        background-color: #6a6a6a;
+    }
+
+    /* Area to display selected files */
+    #csv-upload-selectedFilesDisplay { /* Prefixed ID */
+        min-height: 50px;
+        max-height: 150px;
+        overflow-y: auto;
+        background-color: #2f2f2f;
+        border: 1px solid #555;
+        padding: 8px;
+        font-size: 0.9em;
+        border-radius: 4px;
+    }
+    #csv-upload-selectedFilesDisplay ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+    #csv-upload-selectedFilesDisplay li {
+        padding: 2px 0;
+        border-bottom: 1px dotted #444;
+        word-break: break-all; /* Prevent long names overflowing */
+    }
+    #csv-upload-selectedFilesDisplay li:last-child {
+        border-bottom: none;
+    }
+    #csv-upload-selectedFilesDisplay p { /* Style placeholder text */
+        color: #999;
+        font-style: italic;
+    }
+
+    /* Directory Tree Styling */
+    #csv-upload-serverDirectoryTree { /* Prefixed ID */
+        min-height: 100px;
+        max-height: 250px;
+        overflow-y: auto;
+        background-color: #2f2f2f;
+        border: 1px solid #555;
+        padding: 8px;
+        border-radius: 4px;
+    }
+    #csv-upload-serverDirectoryTree ul {
+        list-style: none;
+        padding-left: 20px;
+        margin: 0;
+    }
+    #csv-upload-serverDirectoryTree li {
+        padding: 3px 0;
+        cursor: pointer;
+        position: relative; /* For pseudo-elements */
+        color: #b0bec5; /* Lighter grey */
+    }
+    #csv-upload-serverDirectoryTree li::before { /* Folder icon */
+        content: '\f07b'; /* Font Awesome folder icon */
+        font-family: 'Font Awesome 6 Free', 'Font Awesome 5 Free', 'FontAwesome'; /* Include fallbacks */
+        font-weight: 900;
+        margin-right: 8px;
+        color: #ffd54f; /* Yellowish folder */
+    }
+    /* Style for the selected target folder */
+    #csv-upload-serverDirectoryTree li.csv-upload-selected-target { /* Prefixed Class */
+        background-color: #0277bd; /* Highlight color */
+        color: white !important; /* White text for selected */
+        font-weight: bold;
+        border-radius: 3px;
+        padding-left: 5px; /* Adjust padding for background */
+        margin-left: -5px; /* Counteract padding */
+    }
+    #csv-upload-serverDirectoryTree li.csv-upload-selected-target::before {
+        color: white; /* White icon for selected */
+    }
+    #csv-upload-serverDirectoryTree li:hover {
+        background-color: #4a4a4a;
+    }
+    #csv-upload-serverDirectoryTree p { /* Style placeholder/error text */
+        color: #999;
+        font-style: italic;
+    }
+
+    /* Selected Target Path Display */
+    #csv-upload-selectedTargetPath { /* Prefixed ID */
+        margin-top: 8px;
+        font-style: italic;
+        color: #a0a0a0;
+        word-break: break-all; /* Prevent long paths overflowing */
+    }
+
+    /* Modal Actions */
+    .csv-upload-modal-actions { /* Prefixed */
+        display: flex;
+        justify-content: space-between; /* Align buttons to the left and to the right */
+        margin-top: 15px;
+        gap: 10px;
+    }
+    .csv-upload-modal-actions button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.2s, opacity 0.2s;
+    }
+    .csv-upload-modal-actions .csv-upload-cancel-btn { /* Prefixed */
+        background-color: #f44336; /* Red */
+        color: white;
+    }
+    .csv-upload-modal-actions .csv-upload-cancel-btn:hover {
+        background-color: #d32f2f;
+    }
+    .csv-upload-modal-actions .csv-upload-upload-btn { /* Prefixed */
+        background-color: #4CAF50; /* Green */
+        color: white;
+    }
+    .csv-upload-modal-actions .csv-upload-upload-btn:hover {
+        background-color: #388E3C;
+    }
+    .csv-upload-modal-actions .csv-upload-upload-btn:disabled {
+        background-color: #9E9E9E; /* Grey out when disabled */
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
+    /* Checkbox style */
+    .csv-upload-option-checkbox { /* Prefixed */
+        display: flex; /* Align icon and text */
+        align-items: center;
+        gap: 5px; /* Space between checkbox, label, icon */
+    }
+    .csv-upload-option-checkbox label {
+        margin-left: 5px;
+        cursor: pointer;
+    }
+    .csv-upload-option-checkbox input[type="checkbox"] {
+        cursor: pointer;
+        flex-shrink: 0; /* Prevent checkbox from shrinking */
+    }
+    .csv-upload-option-checkbox i { /* Style info icon */
+        cursor: help;
+        color: #87CEFA; /* Light blue */
+        flex-shrink: 0; /* Prevent icon from shrinking */
+    }
+</style>
+
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<!-- Section 2: Data Upload Trigger -->
+<div class="csv-upload-section2"> <!-- Prefixed Class -->
+    <!-- This button now OPENS the modal -->
+    <button type="button" id="csv-upload-openModalButton" class="csv-upload-button"> <!-- Prefixed ID and Class -->
+        Upload Data!
+    </button>
+</div>
+<!-- The Modal for Data Upload -->
+<div id="csv-upload-dataModal" class="csv-upload-data-modal"> <!-- Prefixed ID and Class -->
+    <div class="csv-upload-data-content"> <!-- Prefixed Class -->
+        <h3>Upload Time Series CSV Data</h3>
+
+        <!-- 1. Select Local Files/Directory -->
+        <div class="csv-upload-modal-section"> <!-- Prefixed Class -->
+            <h4>1. Select Data Source</h4>
+            <!-- Hidden Inputs - Prefixed IDs -->
+            <!-- Accept only .xml and .csv files -->
+            <input type="file" id="csv-upload-directoryInput" webkitdirectory directory multiple style="display: none;">
+            <input type="file" id="csv-upload-fileInput" multiple accept=".csv" style="display: none;"> <!-- Added .csv -->
+            <!-- Buttons to trigger inputs - Prefixed Classes/Labels -->
+            <label for="csv-upload-directoryInput" class="csv-upload-select-button">Select Directory</label>
+            <label for="csv-upload-fileInput" class="csv-upload-select-button">Select Files (.csv)</label> <!-- Updated Text -->
+            <!-- Display Area - Prefixed ID -->
+            <div id="csv-upload-selectedFilesDisplay">
+                <p><i>No files selected yet.</i></p>
+                <!-- Selected file info will appear here -->
+            </div>
+        </div>
+
+        <!-- 2. Select Target Server Directory -->
+        <div class="csv-upload-modal-section"> <!-- Prefixed Class -->
+            <h4>2. Select Target Folder on Server</h4>
+            <!-- Tree Container - Prefixed ID -->
+            <div id="csv-upload-serverDirectoryTree">
+                <p><i>Loading server directory structure...</i></p>
+                <!-- Server directory tree will be built here by JS -->
+            </div>
+            <!-- Selected Path Display - Prefixed ID -->
+             <p id="csv-upload-selectedTargetPath">Target: None</p>
+        </div>
+
+        <!-- 3. Upload Options -->
+        <div class="csv-upload-modal-section"> <!-- Prefixed Class -->
+            <h4>3. Options for Directory Upload</h4>
+            <!-- Prefixed Class and ID -->
+            <div class="csv-upload-option-checkbox">
+                <input type="checkbox" id="csv-upload-keepRootFolder" name="csv-upload-keepRootFolder" checked> <!-- Prefixed ID & name -->
+                <label for="csv-upload-keepRootFolder">Keep original root folder name when uploading directory</label> <!-- Prefixed for -->
+                <!-- Make sure Font Awesome is loaded -->
+                <i class="fas fa-info-circle" title="If checked and you upload a folder named 'MyData', it will be placed inside the target as 'TargetFolder/MyData'. If unchecked, its contents go directly into 'TargetFolder'. Irrelevant for file uploads."></i>
+            </div>
+        </div>
+
+        <!-- Actions - Prefixed Classes and IDs -->
+        <div class="csv-upload-modal-actions"> <!-- Prefixed Class -->
+            <button type="button" id="csv-upload-cancelDataUpload" class="csv-upload-cancel-btn">Cancel</button> <!-- Prefixed ID & Class -->
+            <button type="button" id="csv-upload-confirmDataUpload" class="csv-upload-upload-btn" disabled>Upload</button> <!-- Prefixed ID & Class -->
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- Keep getCookie function ---
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    // --- Prefixed Modal Elements ---
+    const csvUploadOpenModalButton = document.getElementById('csv-upload-openModalButton');
+    const csvUploadDataModal = document.getElementById('csv-upload-dataModal');
+    const csvUploadCancelDataUploadButton = document.getElementById('csv-upload-cancelDataUpload');
+    const csvUploadConfirmDataUploadButton = document.getElementById('csv-upload-confirmDataUpload');
+    const csvUploadDirectoryInput = document.getElementById('csv-upload-directoryInput');
+    const csvUploadFileInput = document.getElementById('csv-upload-fileInput');
+    const csvUploadSelectedFilesDisplay = document.getElementById('csv-upload-selectedFilesDisplay');
+    const csvUploadServerDirectoryTreeContainer = document.getElementById('csv-upload-serverDirectoryTree');
+    const csvUploadSelectedTargetPathDisplay = document.getElementById('csv-upload-selectedTargetPath');
+    const csvUploadKeepRootFolderCheckbox = document.getElementById('csv-upload-keepRootFolder');
+
+    // --- State Variables (Prefixed) ---
+    let csvUploadSelectedLocalFiles = []; // Array to hold selected File objects
+    let csvUploadIsDirectorySelection = false;
+    let csvUploadSelectedServerTargetPath = null; // Path string relative to MEDIA_ROOT
+
+    // --- CSV Upload: Function to Fetch Server Directory Structure ---
+    async function csvUploadFetchServerDirectoryStructure() {
+        if (!csvUploadServerDirectoryTreeContainer) return; // Guard
+        csvUploadServerDirectoryTreeContainer.innerHTML = '<p><i>Loading server directory structure...</i></p>';
+        csvUploadSelectedServerTargetPath = null; // Reset selection
+        if (csvUploadSelectedTargetPathDisplay) csvUploadSelectedTargetPathDisplay.textContent = 'Target: None';
+        csvUploadUpdateUploadButtonState(); // Disable upload button
+
+        try {
+            const currentCsrftoken = getCookie('csrftoken'); // Get fresh token
+            // The backend URL likely remains the same, handling directory structure requests
+            const response = await fetch("{% url 'home:upload_directory' %}", {
+                method: 'GET',
+                headers: {
+                    'X-CSRFToken': currentCsrftoken,
+                    'Accept': 'application/json',
+                    'X-Request-Type': 'GetDirectoryStructure' // Keep header if backend uses it
+                }
+            });
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const treeData = await response.json();
+            if (treeData.status === 'success' && treeData.directory_structure) {
+                csvUploadDisplayServerDirectoryTree(treeData.directory_structure, csvUploadServerDirectoryTreeContainer, ''); // Call prefixed function
+            } else {
+                csvUploadServerDirectoryTreeContainer.innerHTML = `<p style="color: red;"><i>Error loading structure: ${treeData.message || 'Unknown error'}</i></p>`;
+            }
+        } catch (error) {
+            console.error('CSV Upload: Error fetching server directory structure:', error);
+            csvUploadServerDirectoryTreeContainer.innerHTML = `<p style="color: red;"><i>Could not load server directory structure. ${error.message}</i></p>`;
+        }
+    }
+
+    // --- CSV Upload: Function to Update Selected Files Display ---
+    function csvUploadUpdateSelectedFilesDisplay() {
+        if (!csvUploadSelectedFilesDisplay) return; // Guard
+        if (csvUploadSelectedLocalFiles.length === 0) {
+            csvUploadSelectedFilesDisplay.innerHTML = '<p><i>No files selected yet.</i></p>';
+            return;
+        }
+        let html = '<ul>';
+        if (csvUploadIsDirectorySelection) {
+            const firstPath = csvUploadSelectedLocalFiles[0]?.webkitRelativePath;
+            const rootDir = firstPath ? firstPath.split('/')[0] : 'Selected Directory';
+            const fileCount = csvUploadSelectedLocalFiles.length;
+            html += `<li><b>Directory:</b> ${rootDir} (${fileCount} CSV file${fileCount !== 1 ? 's' : ''})</li>`; // CSV only
+        } else {
+            html += `<li><b>Files (${csvUploadSelectedLocalFiles.length}):</b></li>`;
+            csvUploadSelectedLocalFiles.forEach(file => {
+                // Ensure only CSV files are listed (though filtering should prevent others)
+                if (file.name.toLowerCase().endsWith('.csv')) {
+                    html += `<li>- ${file.name}</li>`;
+                }
+            });
+        }
+        html += '</ul>';
+        csvUploadSelectedFilesDisplay.innerHTML = html;
+    }
+
+    // --- CSV Upload: Function to Display Server Directory Tree ---
+    function csvUploadDisplayServerDirectoryTree(node, parentElement, currentPath) {
+        if (!parentElement) return; // Guard
+        if (parentElement === csvUploadServerDirectoryTreeContainer) {
+            parentElement.innerHTML = ''; // Clear "Loading..." message
+        }
+        const ul = document.createElement('ul');
+        const sortedKeys = Object.keys(node || {}).sort();
+        sortedKeys.forEach(key => {
+            const li = document.createElement('li');
+            li.textContent = key;
+            const nodePath = currentPath ? `${currentPath}/${key}` : key;
+            li.dataset.path = nodePath;
+            li.addEventListener('click', (event) => {
+                event.stopPropagation();
+                const previouslySelected = csvUploadServerDirectoryTreeContainer.querySelector('.csv-upload-selected-target');
+                if (previouslySelected) {
+                    previouslySelected.classList.remove('csv-upload-selected-target');
+                }
+                li.classList.add('csv-upload-selected-target');
+                csvUploadSelectedServerTargetPath = nodePath;
+                if(csvUploadSelectedTargetPathDisplay) csvUploadSelectedTargetPathDisplay.textContent = `Target: ${csvUploadSelectedServerTargetPath}`;
+                console.log("CSV Upload: Selected target path:", csvUploadSelectedServerTargetPath);
+                csvUploadUpdateUploadButtonState(); // Call prefixed function
+            });
+            parentElement.appendChild(ul);
+            ul.appendChild(li);
+            if (typeof node[key] === 'object' && node[key] !== null && Object.keys(node[key]).length > 0) {
+                csvUploadDisplayServerDirectoryTree(node[key], li, nodePath); // Recursive call
+            }
+        });
+        if (parentElement === csvUploadServerDirectoryTreeContainer && sortedKeys.length === 0) {
+            parentElement.innerHTML = '<p><i>No subdirectories found on server. Files will be uploaded to the root directory defined by the server.</i></p>';
+        }
+    }
+
+    // --- CSV Upload: Function to Enable/Disable Upload Button ---
+    function csvUploadUpdateUploadButtonState() {
+        if (!csvUploadConfirmDataUploadButton) return; // Guard
+        // Enable only if CSV files are selected and a target path is chosen
+        if (csvUploadSelectedLocalFiles.length > 0 && csvUploadSelectedServerTargetPath !== null) {
+            csvUploadConfirmDataUploadButton.disabled = false;
+        } else {
+            csvUploadConfirmDataUploadButton.disabled = true;
+        }
+    }
+
+    // --- CSV Upload: Function to Reset the Upload Modal ---
+    function csvUploadResetUploadModal() {
+        csvUploadSelectedLocalFiles = [];
+        csvUploadIsDirectorySelection = false;
+        csvUploadSelectedServerTargetPath = null;
+        if (csvUploadKeepRootFolderCheckbox) csvUploadKeepRootFolderCheckbox.checked = true;
+        csvUploadUpdateSelectedFilesDisplay(); // Prefixed call
+        if (csvUploadSelectedTargetPathDisplay) csvUploadSelectedTargetPathDisplay.textContent = 'Target: None';
+        // Clear hidden file inputs
+        if (csvUploadDirectoryInput) csvUploadDirectoryInput.value = '';
+        if (csvUploadFileInput) csvUploadFileInput.value = '';
+        // Clear server tree visual selection
+        if (csvUploadServerDirectoryTreeContainer) {
+            const previouslySelected = csvUploadServerDirectoryTreeContainer.querySelector('.csv-upload-selected-target');
+            if (previouslySelected) {
+                previouslySelected.classList.remove('csv-upload-selected-target');
+            }
+            csvUploadServerDirectoryTreeContainer.innerHTML = ''; // Clear tree content
+        }
+        csvUploadUpdateUploadButtonState(); // Prefixed call to disable button
+        // Reset button states
+        if(csvUploadConfirmDataUploadButton) {
+            csvUploadConfirmDataUploadButton.textContent = 'Upload';
+            csvUploadConfirmDataUploadButton.disabled = true;
+        }
+        if(csvUploadCancelDataUploadButton) csvUploadCancelDataUploadButton.disabled = false;
+    }
+
+    // --- CSV Upload: Event Listeners ---
+
+    // Open Modal
+    if (csvUploadOpenModalButton) {
+        csvUploadOpenModalButton.addEventListener('click', () => {
+            csvUploadResetUploadModal(); // Reset before opening
+            if (csvUploadDataModal) csvUploadDataModal.style.display = 'flex';
+            csvUploadFetchServerDirectoryStructure(); // Fetch structure when opened
+        });
+    }
+
+    // Cancel Modal
+    if (csvUploadCancelDataUploadButton) {
+        csvUploadCancelDataUploadButton.addEventListener('click', () => {
+            if (csvUploadDataModal) csvUploadDataModal.style.display = 'none';
+            csvUploadResetUploadModal(); // Reset on cancel
+        });
+    }
+
+    // Handle Directory Selection
+    if (csvUploadDirectoryInput) {
+        csvUploadDirectoryInput.addEventListener('change', (event) => {
+            // Filter strictly for .csv files
+            csvUploadSelectedLocalFiles = Array.from(event.target.files).filter(file =>
+                file.name.toLowerCase().endsWith('.csv')
+            );
+            csvUploadIsDirectorySelection = true;
+            if (csvUploadFileInput) csvUploadFileInput.value = ''; // Clear single file input
+
+            if (csvUploadSelectedLocalFiles.length === 0) {
+                if (csvUploadSelectedFilesDisplay) csvUploadSelectedFilesDisplay.innerHTML = '<p style="color: orange;"><i>No CSV files found in the selected directory.</i></p>'; // CSV only message
+            } else {
+                csvUploadUpdateSelectedFilesDisplay(); // Update display
+            }
+            csvUploadUpdateUploadButtonState(); // Update button state
+        });
+    }
+
+    // Handle File Selection
+    if (csvUploadFileInput) {
+        // Note: The 'accept=".csv"' attribute on the input provides primary filtering
+        csvUploadFileInput.addEventListener('change', (event) => {
+            // Convert FileList to Array for easier handling
+            csvUploadSelectedLocalFiles = Array.from(event.target.files);
+            csvUploadIsDirectorySelection = false;
+            if (csvUploadDirectoryInput) csvUploadDirectoryInput.value = ''; // Clear directory input
+            csvUploadUpdateSelectedFilesDisplay(); // Update display
+            csvUploadUpdateUploadButtonState(); // Update button state
+        });
+    }
+
+    // Handle Upload Confirmation
+    if (csvUploadConfirmDataUploadButton) {
+        csvUploadConfirmDataUploadButton.addEventListener('click', async () => {
+            console.log("CSV Upload: Upload button clicked.");
+
+            // Validation (redundant due to button state, but safe)
+            if (csvUploadSelectedLocalFiles.length === 0 || !csvUploadSelectedServerTargetPath) {
+                alert("Please select CSV files or a directory containing CSV files, and a target server folder."); // CSV specific message
+                return;
+            }
+
+            // --- Prepare FormData ---
+            const formData = new FormData();
+            formData.append('target_path', csvUploadSelectedServerTargetPath);
+            formData.append('keep_root', csvUploadKeepRootFolderCheckbox.checked);
+            formData.append('is_directory', csvUploadIsDirectorySelection);
+
+            console.log("CSV Upload: --- Preparing file data and paths ---");
+            const intendedRelativePaths = [];
+
+            csvUploadSelectedLocalFiles.forEach((file, index) => {
+                // Only append .csv files (double check)
+                if (file.name.toLowerCase().endsWith('.csv')) {
+                    const intendedPath = csvUploadIsDirectorySelection ? (file.webkitRelativePath || file.name) : file.name;
+                    intendedRelativePaths.push(intendedPath);
+                    console.log(`  [File ${index}] Appending CSV file object: '${file.name}', Intended path: '${intendedPath}', Size: ${file.size}`);
+                    // Backend expects 'files[]' key for multiple files
+                    formData.append('files[]', file, file.name);
+                } else {
+                    console.warn(`CSV Upload: Skipped non-CSV file: ${file.name}`);
+                }
+            });
+
+            // Check if any valid files were actually added
+            if (intendedRelativePaths.length === 0) {
+                alert("No valid CSV files were selected for upload.");
+                return; // Stop if no CSV files are present
+            }
+
+            formData.append('intended_paths', JSON.stringify(intendedRelativePaths));
+            console.log("CSV Upload: Intended Paths JSON:", JSON.stringify(intendedRelativePaths));
+            console.log("CSV Upload: --- Finished appending files and paths ---");
+
+            // --- UI Feedback ---
+            csvUploadConfirmDataUploadButton.disabled = true;
+            if(csvUploadCancelDataUploadButton) csvUploadCancelDataUploadButton.disabled = true;
+            csvUploadConfirmDataUploadButton.textContent = 'Uploading...';
+
+            // --- Send POST Request ---
+            try {
+                const currentCsrftoken = getCookie('csrftoken');
+                // The backend URL likely remains the same, handling the actual file upload
+                const postResponse = await fetch("{% url 'home:upload_directory' %}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': currentCsrftoken
+                        // 'Content-Type' automatically set for FormData
+                    },
+                    body: formData
+                });
+
+                const postResult = await postResponse.json();
+
+                // Handle Success (200 OK) or Partial Success (207 Multi-Status)
+                if (postResponse.ok || postResponse.status === 207) {
+                    console.log('CSV Upload: Upload finished:', postResult);
+
+                    // Display feedback message (remains largely the same structure)
+                    let alertDetail = `Status: ${postResult.status}\nMessage: ${postResult.message}\n\n` +
+                                    `Files Uploaded: ${postResult.uploaded_count ?? 'N/A'}\n` +
+                                    `Skipped (Already Exist): ${postResult.skipped_exists_count ?? 'N/A'}\n` +
+                                    `Skipped (Validation Failed): ${postResult.skipped_validation_count ?? 'N/A'}\n` +
+                                    `Save Errors: ${postResult.save_errors ? postResult.save_errors.length : 0}`;
+                    if (postResult.save_errors && postResult.save_errors.length > 0) {
+                        alertDetail += `\n\nDetails:\n${postResult.save_errors.slice(0, 10).join('\n')}`;
+                        if (postResult.save_errors.length > 10) alertDetail += "\n(See browser console for more details)";
+                        console.error("CSV Upload: Upload Errors/Skips:", postResult.save_errors);
+                    }
+                    alert(alertDetail);
+
+                    if (csvUploadDataModal) csvUploadDataModal.style.display = 'none'; // Close modal
+                    csvUploadResetUploadModal(); // Reset state
+
+                    // Dispatch event to notify other parts of the app about the potential change
+                    // Using a generic name like 'directorySelected' or 'uploadComplete' is fine
+                    if (postResult.directory_contents) {
+                        console.log("CSV Upload: Dispatching 'directorySelected' event with payload:", postResult.directory_contents);
+                        document.dispatchEvent(new CustomEvent('directorySelected', { detail: postResult.directory_contents }));
+                    } else {
+                        console.warn("CSV Upload: Backend response did not include 'directory_contents'. Dispatching 'directorySelected' with empty list.");
+                        document.dispatchEvent(new CustomEvent('directorySelected', { detail: [] }));
+                    }
+
+                } else {
+                    // Handle HTTP errors (4xx, 5xx)
+                    console.error('CSV Upload: Upload failed:', postResult);
+                    let errorAlertDetail = `Upload Failed:\nStatus: ${postResponse.status}\n` +
+                                        `Message: ${postResult?.message || 'Server error or unexpected response.'}`;
+                    if (postResult?.save_errors && postResult.save_errors.length > 0) {
+                    errorAlertDetail += `\n\nDetails:\n${postResult.save_errors.join('\n')}`;
+                    console.error("CSV Upload: Upload Errors/Skips:", postResult.save_errors);
+                    }
+                    alert(errorAlertDetail);
+                }
+
+            } catch (postError) { // Handle fetch network error
+                console.error('CSV Upload: Fetch Error:', postError);
+                alert(`Upload Failed: Network error or issue processing request - ${postError.message}`);
+            } finally {
+                // --- Re-enable UI ---
+                if(csvUploadConfirmDataUploadButton) {
+                    csvUploadConfirmDataUploadButton.disabled = false; // Re-enable after attempt
+                    csvUploadConfirmDataUploadButton.textContent = 'Upload';
+                }
+                if(csvUploadCancelDataUploadButton) csvUploadCancelDataUploadButton.disabled = false;
+                csvUploadUpdateUploadButtonState(); // Ensure button state is correct
+            }
+        });
+    }
+
+    // Close modal if clicking outside the content area
+    if (csvUploadDataModal) {
+        window.addEventListener('click', (event) => {
+            if (event.target === csvUploadDataModal) {
+                csvUploadDataModal.style.display = 'none';
+                csvUploadResetUploadModal(); // Reset on clicking outside
+            }
+        });
+    }
+</script>

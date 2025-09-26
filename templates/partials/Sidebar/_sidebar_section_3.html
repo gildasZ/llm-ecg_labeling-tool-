@@ -1,0 +1,645 @@
+
+<!-- Section 3: Display or process the directory data -->
+
+<!-- Adding Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<style>
+    .section3 {
+        display: flex;
+        flex-direction: column;
+        height: 700px;
+        box-sizing: border-box;
+        border-bottom: 1px solid rgb(194, 189, 189);
+    }
+
+    /* --- Style for the button that OPENS the download popup --- */
+    /* dlm- (for Download Modal) */
+    .dlm-open-popup-btn {
+        margin: 10px;
+        padding: 8px 15px;
+        cursor: pointer;
+        align-self: flex-start;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 0.9em;
+    }
+    .dlm-open-popup-btn i {
+        margin-right: 5px;
+    }
+
+    /* --- Modal Popup Styles (with dlm- prefix) --- */
+    .dlm-modal-overlay {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.6);
+    }
+    .dlm-modal-content {
+        background-color: #9E9E9E;
+        margin: 10% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 60%;
+        max-width: 700px;
+        min-height: 400px;
+        display: flex;
+        flex-direction: column;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+    }
+    .dlm-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+    }
+    .dlm-modal-header h2 {
+        margin: 0;
+        font-size: 1.4em;
+    }
+    .dlm-modal-close-btn {
+        color: #080808;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    .dlm-modal-close-btn:hover,
+    .dlm-modal-close-btn:focus {
+        color: black;
+        text-decoration: none;
+    }
+    .dlm-modal-body {
+        flex-grow: 1;
+        overflow-y: auto;
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        padding: 10px;
+        background-color: #9E9E9E;
+    }
+    .dlm-modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        padding-top: 10px;
+        border-top: 1px solid #eee;
+    }
+
+    #modalDownloadBtn {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    #modalDownloadBtn:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+    }
+
+    /* Styles for the tree inside the modal (using prefixed parent) */
+    .dlm-modal-body ul {
+        padding-left: 20px;
+        list-style-type: none;
+    }
+    .dlm-modal-body li {
+        margin: 5px 0;
+        cursor: default; /* Default cursor for li, interaction via checkbox/span */
+    }
+    .dlm-modal-body li.dlm-modal-folder > span:before {
+        content: '>';
+        margin-right: 7px;
+        display: inline-block;
+        width: 10px;
+        cursor: pointer; /* Make arrow clickable */
+    }
+    .dlm-modal-body li.dlm-modal-folder.open > span:before {
+        content: 'v';
+    }
+    .dlm-modal-body li i {
+        margin-left: 5px;
+        margin-right: 5px;
+        color: #6c757d;
+        cursor: pointer; /* Make icon clickable */
+     }
+    .dlm-modal-body li.dlm-modal-folder > i.fa-folder,
+    .dlm-modal-body li.dlm-modal-folder > i.fa-folder-open {
+        color: #ffc107;
+    }
+    .dlm-modal-body input[type="checkbox"] {
+        margin-right: 8px;
+        vertical-align: middle;
+        cursor: pointer;
+    }
+    .dlm-modal-body li > span {
+        vertical-align: middle;
+        cursor: pointer; /* Make text clickable for toggle */
+    }
+
+    #folderDisplay {
+        overflow-y: auto; /* Enables vertical scroll */
+        flex: 1 0 0%; /* Uses all the space available of section 3 */
+        white-space: nowrap; /* Prevents text wrapping */
+        box-sizing: border-box;
+    }
+    #fileDisplay {
+        flex: 0 0 0; /* Grow: 0, Shrink: 0, Basis: 0 */
+        height: 0;     /* Explicit height 0 */
+        overflow: hidden; /* Hide any accidental content */
+    }
+
+    /* --- --- */
+    ul {
+        padding-left: 20px;
+    }
+    li.root-folder:before {
+        content: 'v'; /* Default open icon for root */
+    }
+    li.folder:before {
+        content: '>'; /* Default closed icon */
+        margin-right: 5px;
+    }
+    li.folder.open:before, li.root-folder.root-open:before {
+        content: 'v'; /* Open folder icon */
+    }
+    li.file:before {
+        content: '\25A0'; /* Unicode for black square */
+        margin-right: 5px; /* Adds space between the square icon and the file icon */
+        color: #717779; /* You can change the color if needed */
+    }
+    li.file i {
+        margin-right: 5px; /* Adds space between the file icon and the text */
+    }
+    li.folder {
+        margin-top: 10px;  /* Adds 10px margin at the top */
+        margin-bottom: 10px; /* Adds 10px margin at the bottom */
+    }
+
+    /* Specific styles for the root folder icon to ensure it is visually distinct and unchanging */
+    li.folder i.fa-folder-tree {
+        color: #007bff; /* Example color - blue, make it stand out */
+        font-size: 1.25em; /* Larger than other icons */
+    }
+    /* Add this within your existing <style> tag */
+    .file {
+        padding-left: 14px;
+        display: flex;
+        align-items: center;
+        transition: transform 0.2s ease, background-color 0.5s ease; /* Smooth transition for transform and background-color */
+    }
+    .file:hover {
+        transform: scale(1.25); /* Slightly increase size on hover or when highlighted */
+        cursor: pointer; /* Change cursor to pointer to indicate clickability */
+        /* background-color: #928c8c; This one not working as expected */
+        color: #26a0b6; /* Example text color, choose any color you prefer */
+        font-weight: bold; /* Make text bold */
+    }
+    .file.highlight {
+        transform: scale(1.25); /* Slightly increase size on hover or when highlighted */
+        cursor: pointer; /* Change cursor to pointer to indicate clickability */
+        color: #33b348; /* Example text color, choose any color you prefer */
+        font-weight: bold; /* Make text bold */
+    }
+    /* Before changing */
+</style>
+
+<div class="section3">
+    <button class="dlm-open-popup-btn">
+        <i class="fas fa-cloud-download-alt"></i> Download Outputs
+    </button>
+    <div id="folderDisplay"><!-- Directory tree for folders will be displayed here --></div>
+    <div id="fileDisplay"><!-- Files will be displayed here --></div>
+    <!-- Using ID for the main modal container for easy JS access -->
+    <div id="downloadModal" class="dlm-modal-overlay"> <!-- MODIFIED: Added class prefix -->
+        <div class="dlm-modal-content"> <!-- MODIFIED: Added class prefix -->
+            <div class="dlm-modal-header"> <!-- MODIFIED: Added class prefix -->
+                <h2>Select Files/Folders to Download</h2>
+                <!-- MODIFIED: Changed ID to class -->
+                <span class="dlm-modal-close-btn">×</span>
+            </div>
+            <div class="dlm-modal-body"> <!-- MODIFIED: Added class prefix -->
+                 <!-- Using ID for the tree container for easy JS access -->
+                <div id="modalTreeContainer">
+                    <p><i>Loading downloadable files...</i></p>
+                </div>
+            </div>
+            <div class="dlm-modal-footer"> <!-- MODIFIED: Added class prefix -->
+                <!-- Using ID for the download button for easy JS access -->
+                <button id="modalDownloadBtn" disabled>
+                    <i class="fas fa-download"></i> Download Selected
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Assume csrftoken is globally available and `const csrftoken = getCookie('csrftoken');` is defined
+
+    let currentActiveFolder = {}; // Stores the last clicked folder's files
+    let lastClickedFile = null; // Stores the last clicked file element for toggling highlight
+    let currentFilePath = ""; // Stores the current file path globally
+
+    // Using querySelector for classes, getElementById for IDs
+    const openDownloadPopupBtn = document.querySelector('.dlm-open-popup-btn'); // MODIFIED: querySelector
+    const downloadModal = document.getElementById('downloadModal'); // Kept ID
+    const modalCloseBtn = document.querySelector('.dlm-modal-close-btn'); // MODIFIED: querySelector
+    const modalTreeContainer = document.getElementById('modalTreeContainer'); // Kept ID
+    const modalDownloadBtn = document.getElementById('modalDownloadBtn'); // Kept ID
+    let downloadableFilesData = [];
+
+    document.addEventListener('directorySelected', function(event) {
+        const files = event.detail;
+        console.log("Received 'directorySelected' event.");
+        updateDirectoryDisplay(files);
+    });
+
+    // --- Function to fetch initial directory state ---
+    async function fetchAndDisplayInitialDirectory() {
+        console.log("Fetching initial directory structure...");
+        const folderContainer = document.getElementById('folderDisplay');
+        const fileContainer = document.getElementById('fileDisplay');
+        folderContainer.innerHTML = '<p><i>Loading initial file list...</i></p>';
+        fileContainer.innerHTML = '';
+        try {
+            const csrftoken = getCookie('csrftoken');
+            const response = await fetch("{% url 'home:upload_directory' %}?action=list_contents", {
+                method: 'GET',
+                headers: {
+                    'X-CSRFToken': csrftoken, // Send CSRF if required by GET view
+                    'Accept': 'application/json'
+                }
+            });
+            if (!response.ok) {
+                 throw new Error(`HTTP error fetching initial list! status: ${response.status}`);
+            }
+            const result = await response.json();
+            if (result.status === 'success' && result.directory_contents) {
+                updateDirectoryDisplay(result.directory_contents); // Use the refactored function
+            } else {
+                console.error("Failed to get initial directory contents:", result.message || "Unknown error");
+                folderContainer.innerHTML = `<p style="color: red;"><i>Error loading initial file list: ${result.message || 'Unknown error'}</i></p>`;
+            }
+        } catch (error) {
+             console.error("Error fetching initial directory contents:", error);
+             folderContainer.innerHTML = `<p style="color: red;"><i>Could not load initial file list. ${error.message}</i></p>`;
+        }
+    }
+
+    async function fetchDownloadableFiles() {
+        console.log("Fetching downloadable file list for modal...");
+        modalTreeContainer.innerHTML = '<p><i>Loading downloadable files...</i></p>';
+        modalDownloadBtn.disabled = true;
+        try {
+            const csrftoken = getCookie('csrftoken');
+            const response = await fetch("{% url 'home:upload_directory' %}?action=list_downloadable_contents", {
+                method: 'GET',
+                headers: { 'X-CSRFToken': csrftoken, 'Accept': 'application/json' }
+            });
+            if (!response.ok) throw new Error(`HTTP error fetching downloadable list! status: ${response.status}`);
+            const result = await response.json();
+            if (result.status === 'success' && result.directory_contents) {
+                console.log("Successfully fetched downloadable files:", result.directory_contents);
+                downloadableFilesData = result.directory_contents;
+                const structuredData = buildDirectoryStructure(downloadableFilesData);
+                displayDownloadableTree(structuredData); // Calls function below
+                modalDownloadBtn.disabled = true; // Keep disabled until selection
+            } else {
+                console.error("Failed to get downloadable file list:", result.message || "Unknown error");
+                modalTreeContainer.innerHTML = `<p style="color: red;"><i>Error loading files: ${result.message || 'Unknown error'}</i></p>`;
+            }
+        } catch (error) {
+            console.error("Error fetching downloadable file list:", error);
+            modalTreeContainer.innerHTML = `<p style="color: red;"><i>Could not load downloadable file list. ${error.message}</i></p>`;
+        }
+    }
+
+    function displayDownloadableTree(data) {
+        modalTreeContainer.innerHTML = '';
+        const ul = document.createElement('ul');
+        appendDownloadableNodes(data, ul, true); // Calls function below using prefixes
+        modalTreeContainer.appendChild(ul);
+        modalTreeContainer.addEventListener('change', updateModalDownloadButtonState);
+        updateModalDownloadButtonState(); // Initial check
+    }
+
+    function appendDownloadableNodes(data, ul, isRoot = false, parentPath = '') {
+        const folderKeys = Object.keys(data).filter(key => typeof data[key] === 'object' && !data[key]._file);
+        const fileKeys = Object.keys(data).filter(key => data[key]._file);
+        folderKeys.sort();
+        fileKeys.sort();
+
+        folderKeys.forEach(key => {
+            const currentPath = parentPath ? `${parentPath}/${key}` : key;
+            const li = document.createElement('li');
+            li.className = 'dlm-modal-folder'; // MODIFIED: Assign prefixed class
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.dataset.path = currentPath;
+            checkbox.dataset.type = 'folder';
+            li.appendChild(checkbox);
+
+            const icon = document.createElement('i');
+            icon.className = 'fas fa-folder';
+            li.appendChild(icon);
+
+            const textSpan = document.createElement('span');
+            textSpan.textContent = ` ${key}`;
+            li.appendChild(textSpan);
+
+            const subUl = document.createElement('ul');
+            subUl.style.display = 'none';
+            li.appendChild(subUl);
+            ul.appendChild(li);
+
+            textSpan.onclick = (event) => toggleModalFolder(event, li, icon, subUl);
+            icon.onclick = (event) => toggleModalFolder(event, li, icon, subUl);
+
+            checkbox.onchange = (event) => {
+                const isChecked = event.target.checked;
+                const childCheckboxes = subUl.querySelectorAll('input[type="checkbox"]');
+                childCheckboxes.forEach(childCb => { childCb.checked = isChecked; });
+                updateModalDownloadButtonState();
+            };
+            appendDownloadableNodes(data[key], subUl, false, currentPath); // Recursive call
+        });
+
+        fileKeys.forEach(key => {
+            const fileData = data[key]._file;
+            const fullPath = fileData.path;
+            const li = document.createElement('li');
+            li.className = 'dlm-modal-file'; // MODIFIED: Assign prefixed class
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.dataset.path = fullPath;
+            checkbox.dataset.type = 'file';
+            li.appendChild(checkbox);
+
+            const icon = document.createElement('i');
+            icon.className = 'far fa-file-alt';
+            li.appendChild(icon);
+
+            const textSpan = document.createElement('span');
+            textSpan.textContent = ` ${key}`;
+            li.appendChild(textSpan);
+            ul.appendChild(li);
+
+            checkbox.onchange = updateModalDownloadButtonState;
+        });
+    }
+
+    function toggleModalFolder(event, li, icon, subUl) {
+         event.stopPropagation();
+         const isOpen = subUl.style.display === 'block';
+         subUl.style.display = isOpen ? 'none' : 'block';
+         // Still using 'open' class for state, applied TO the prefixed class
+         li.classList.toggle('open', !isOpen);
+         icon.className = isOpen ? 'fas fa-folder' : 'fas fa-folder-open';
+    }
+
+    function updateModalDownloadButtonState() {
+        const anyChecked = modalTreeContainer.querySelector('input[type="checkbox"]:checked');
+        modalDownloadBtn.disabled = !anyChecked;
+    }
+
+    function updateDirectoryDisplay(files) {
+        console.log("Updating directory display with:", files);
+        const folderContainer = document.getElementById('folderDisplay');
+        const fileContainer = document.getElementById('fileDisplay');
+        folderContainer.innerHTML = ''; // Clear previous display
+        fileContainer.innerHTML = '';
+
+        if (!files || files.length === 0) {
+            folderContainer.innerHTML = '<p><i>No file found on server.</i></p>';
+            return;
+        }
+
+        try {
+            const directoryData = buildDirectoryStructure(files);
+            displayDirectory(directoryData);
+        } catch (error) {
+             console.error("Error building/displaying directory structure:", error);
+             folderContainer.innerHTML = '<p style="color: red;"><i>Error displaying file structure.</i></p>';
+        }
+    }
+
+    function buildDirectoryStructure(files) {
+        let root = {};
+        files.forEach(file => {
+            // Process only CSV files
+            if (file && file.path && file.path.toLowerCase().endsWith('.csv')) {
+                const pathParts = file.path.split('/');
+                let currentPart = root;
+                for (let part of pathParts.slice(0, -1)) { // navigate through or create folder structure
+                    if (!currentPart[part]) {
+                        currentPart[part] = {};
+                    }
+                    currentPart = currentPart[part];
+                }
+                // Assign the file under its leaf node
+                currentPart[pathParts[pathParts.length - 1]] = { _file: file };
+            } else {
+                console.warn("Skipping invalid file object in buildDirectoryStructure:", file);
+            }
+        });
+        return root;
+    }
+
+    function displayDirectory(data) {
+        const folderContainer = document.getElementById('folderDisplay');
+        const fileContainer = document.getElementById('fileDisplay');
+        folderContainer.innerHTML = '';
+        fileContainer.innerHTML = '';
+        const ul = document.createElement('ul');
+        appendNodes(data, ul, true);
+        folderContainer.appendChild(ul);
+        console.log("Dispatching an empty selected 'file path'");
+        document.dispatchEvent(new CustomEvent('fileSelected', { detail: { filePath: '', fileName: '' } }));
+    }
+
+    function appendNodes(data, ul, isRoot = false) {
+        const folderKeys = Object.keys(data).filter(key => typeof data[key] === 'object' && !data[key]._file);
+        const fileKeys = Object.keys(data).filter(key => data[key]._file);
+
+        folderKeys.sort();
+        fileKeys.sort();
+
+        folderKeys.forEach(key => {
+            const li = document.createElement('li');
+            li.className = 'folder'; // Set initial class to 'folder'
+            
+            const icon = document.createElement('i');
+            if (isRoot) {
+                li.classList.add('root-folder'); // Add class for root folder
+                li.classList.add('root-open'); // Add a class for open root folders
+                icon.className = 'fa-solid fa-folder-tree'; // Specific class for root folder icons
+            } else {
+                icon.className = 'fa-solid fa-folder'; // Default to solid folder icon for non-root folders
+            }
+            li.appendChild(icon);
+
+            li.appendChild(document.createTextNode(` ${key}`));
+            const subUl = document.createElement('ul');
+            // subUl.style.display = 'none';
+            if (isRoot) {
+                subUl.style.display = 'block'; // Set root folder to open by default
+            } else {
+                subUl.style.display = 'none'; // Keep non-root folders closed by default
+            }
+            li.appendChild(subUl);
+            ul.appendChild(li);
+
+            li.addEventListener('click', function(event) {
+                // Prevent this click from propagating up to parent elements, which could trigger other click handlers unintentionally.
+                event.stopPropagation();
+                // Determine the current visibility state of the folder's sub-elements (sub-folder and files list).
+                const isOpen = subUl.style.display === 'none';
+                // Toggle the visibility of sub-elements: if currently hidden (none), set to visible (block), and vice versa.
+                subUl.style.display = isOpen ? 'block' : 'none';
+                // Apply the 'open' class based on the new visibility state. This class affects both styling and the determination of the folder's state.
+                li.classList.toggle('open', isOpen);
+
+                // Check if the current folder being interacted with is the root folder.
+                if (li.classList.contains('root-folder')) {
+                    // Toggle the 'root-open' class based on the new visibility state, which is used specifically for root folder to manage its icon.
+                    li.classList.toggle('root-open', isOpen);
+                } else {
+                    // For non-root folders, toggle between regular and solid folder icons based on whether the folder is open.
+                    icon.className = li.classList.contains('open') ? 'fa-regular fa-folder' : 'fa-solid fa-folder';
+                }
+                // Update the current active folder to the one that was just interacted with, storing its data structure.
+                currentActiveFolder = data[key];
+            });
+            appendNodes(data[key], subUl, false); // Ensure the false is explicitly passed for non-root folders
+        });
+
+        fileKeys.forEach(key => {
+            const li = document.createElement('li');
+            li.className = 'file';
+            // Add an icon element for the file
+            const icon = document.createElement('i');
+            icon.className = 'fa-regular fa-file'; // FontAwesome class for the regular file icon
+            li.appendChild(icon); // Append the icon to the list item
+
+            li.appendChild(document.createTextNode(` ${key}`)); // Existing code to add the file name
+            ul.appendChild(li); // Existing code to append the list item to the unordered list
+
+            li.onclick = function(event) {
+                event.stopPropagation(); // Stops the click from affecting parent elements
+                if (lastClickedFile) {
+                    lastClickedFile.style.transform = ""; // Reset transform on the last clicked file
+                    lastClickedFile.classList.remove('highlight');
+                }
+                // Animation steps
+                li.style.transform = "scale(1)"; // Step 1: Reset to original size
+                setTimeout(() => {
+                    li.style.transform = "scale(1.25)"; // Step 2: Grow to hover size
+                }, 200); // Delay this step to allow the reset to be visible
+
+                li.classList.add('highlight');
+                lastClickedFile = li;
+                currentFilePath = data[key]._file.path; // Store full path
+                // Dispatch custom event with the file path
+                console.log("Dispatching the selected 'full file path':", currentFilePath); // Log the path for further work
+                document.dispatchEvent(new CustomEvent('fileSelected', { detail: { filePath: currentFilePath, fileName: key } }));
+            };
+        });
+    }
+
+    // --- Trigger initial fetch when the DOM is ready ---
+    document.addEventListener('DOMContentLoaded', fetchAndDisplayInitialDirectory);
+
+    // --- Event Listeners for Modal (using updated selectors) ---
+    
+    openDownloadPopupBtn.addEventListener('click', () => { // Listener on the button (class selector used above)
+        downloadModal.style.display = 'block';
+        fetchDownloadableFiles();
+    });
+
+    modalCloseBtn.addEventListener('click', () => { // Listener on the close span (class selector used above)
+        downloadModal.style.display = 'none';
+        modalTreeContainer.innerHTML = '';
+        downloadableFilesData = [];
+    });
+
+    window.addEventListener('click', (event) => {
+        if (event.target == downloadModal) { // Clicking overlay (referenced by ID)
+            downloadModal.style.display = 'none';
+            modalTreeContainer.innerHTML = '';
+            downloadableFilesData = [];
+        }
+    });
+
+    modalDownloadBtn.addEventListener('click', async () => { // Listener on download button (referenced by ID)
+        const selectedCheckboxes = modalTreeContainer.querySelectorAll('input[type="checkbox"]:checked');
+        const selectedFilePaths = [];
+        selectedCheckboxes.forEach(cb => {
+            if (cb.dataset.type === 'file') {
+                selectedFilePaths.push(cb.dataset.path);
+            }
+        });
+
+        if (selectedFilePaths.length === 0) {
+            alert('Please select at least one file to download.');
+            return;
+        }
+        console.log("Selected files for download:", selectedFilePaths);
+        modalDownloadBtn.disabled = true;
+        modalDownloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+        try {
+            const csrftoken = getCookie('csrftoken');
+            // --- !!! PLACEHOLDER: Remember to set your download endpoint !!! ---
+            const downloadUrl = "{% url 'home:download_selected_files' %}";
+            const response = await fetch(downloadUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                },
+                body: JSON.stringify({ paths: selectedFilePaths })
+            });
+
+            if (!response.ok) {
+                let errorMsg = `Download failed. Status: ${response.status}`;
+                try { const errorResult = await response.json(); errorMsg = errorResult.message || errorMsg; } catch (e) { /* ignore */ }
+                throw new Error(errorMsg);
+            }
+            const blob = await response.blob();
+            const link = document.createElement('a');
+            const url = window.URL.createObjectURL(blob);
+            link.href = url;
+            const contentDisposition = response.headers.get('content-disposition');
+            let filename = 'download.zip';
+            if (contentDisposition) {
+                const filenameMatch = contentDisposition.match(/filename="?(.+?)"?$/);
+                if (filenameMatch && filenameMatch.length > 1) { filename = filenameMatch[1]; }
+            }
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+            console.log('Download initiated successfully.');
+            downloadModal.style.display = 'none';
+
+        } catch (error) {
+            console.error('Download error:', error);
+            alert(`Download failed: ${error.message}`);
+        } finally {
+            modalDownloadBtn.disabled = false;
+            modalDownloadBtn.innerHTML = '<i class="fas fa-download"></i> Download Selected';
+        }
+    });
+</script>

@@ -1,0 +1,91 @@
+version: '3.9' # Use a more recent version compatible with your Docker install
+
+services:
+  # PostgreSQL Database Service
+  db:
+    image: postgres:15-alpine # Use a specific version, alpine is smaller
+    container_name: labelv03_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/ # Persist data
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-db_label_v04} # Use env var with default
+      POSTGRES_USER: ${POSTGRES_USER:-postgres} # Use env var with default
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD?Variable not set} # Require from .env
+    # ports:
+    #   # Expose port 5432 locally if you need direct access for debugging (optional)
+    #   - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d db_label_v04"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Redis Service
+  redis:
+    image: redis:alpine # Use alpine for smaller size
+    container_name: labelv03_redis
+    volumes:
+      - redis_data:/data # Optional persistence for Redis data
+    # ports:
+    #   # Expose port 6379 locally if needed for debugging (optional)
+    #   - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Django Web Application Service
+  web:
+    build: . # Build from Dockerfile in the current directory
+    container_name: labelv03_web
+    # The command is now defined in the Dockerfile's CMD via ENTRYPOINT
+    # command: daphne -b 0.0.0.0 -p 8000 label_V04.asgi:application
+    env_file:
+        - .env # Load variables from .env file
+    volumes:
+      # Mount code for development (reflects changes without rebuild)
+      # Remove this line for production to use code baked into the image
+      - .:/app
+      # Mount volume for user-uploaded media files
+      # Ensure '/app/media' matches MEDIA_ROOT in settings.py
+      - media_volume:/app/media
+      # Static files are collected into the image by the Dockerfile.
+      # WhiteNoise will serve them from /app/staticfiles_collected inside the container.
+      # No separate static volume mount needed here for the web service itself.
+    ports:
+      - "8000:8000" # Map host port 8000 to container port 8000
+    environment:
+      # Django Settings
+      - DJANGO_SETTINGS_MODULE=label_V04.settings
+      - SECRET_KEY=your_development_secret_key # <-- CHANGE THIS! Use .env file ideally
+      - DEBUG=1 # Set to 0 in production
+      - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 web [::1] # Add 'web' service name
+
+      # The following variables are now expected to be loaded from the .env file:
+      # - SECRET_KEY
+      # - DEBUG
+      # - DJANGO_ALLOWED_HOSTS
+      # - DJANGO_CSRF_TRUSTED_ORIGINS (if you use it in settings.py)
+      # - DB_ENGINE (if not using DATABASE_URL)
+      # - DB_NAME   (if not using DATABASE_URL)
+      # - DB_USER   (if not using DATABASE_URL)
+      # - DB_PASSWORD (if not using DATABASE_URL)
+      # - DB_HOST   (if not using DATABASE_URL)
+      # - DB_PORT   (if not using DATABASE_URL)
+      # - REDIS_HOST
+      # - REDIS_PORT
+      # - REDIS_DB
+
+    depends_on:
+      # Wait for db and redis to be healthy before starting web
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+# Docker Volumes for Data Persistence
+volumes:
+  postgres_data:
+  redis_data:
+  media_volume:

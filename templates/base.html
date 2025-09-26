@@ -1,0 +1,64 @@
+
+<!-- 'templates/base.html' -->
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Labeling Tool</title>
+    <!-- Including CSS directly in the head to affect the whole layout -->
+    <style>
+        html, body {
+            height: 100vh;          /* Full viewport height */
+            width: 100vw;           /* Full viewport width */
+            margin: 0;
+            padding: 0;
+            overflow: hidden;       /* Prevent scrolling */
+            display: flex;          /* Default flex-direction will be row' if not specified */
+            flex-direction: column;
+        }
+        #wrapper {
+            display: flex;          /* Default flex-direction will be row' if not specified */
+            flex-direction: row;    /* Horizontal layout to include sidebar */
+            flex: 1;                /* Flex to fill available space */
+            width: 100%;            /* Take full width of the parent */
+            height: 100%;           /* Take full height of the parent */
+        }
+        #content-wrapper {
+            display: flex;           /* Default flex-direction will be row' if not specified */
+            flex-direction: column;
+            flex: 1;                 /* Flex to take remaining space after sidebar */
+            height: 100%;            /* Take full height of the parent */
+            overflow: hidden; /* Prevents internal content from overflowing */
+        }
+        #content {
+            display: flex;           /* Default flex-direction will be row' if not specified */
+            flex: 1;  
+            /* flex-grow: 1;            Take available space replaced it with flex: 1 just like the others */
+            width: 100%;             /* Take full width of the parent */
+            min-height: 0;  /* Important for flex children in column layout */
+        }
+    </style>
+    <!-- No other styles here; they should be included in each specific partial -->
+</head>
+
+<body>
+    <div id="wrapper">
+        <!-- Sidebar -->
+        {% include 'partials/Sidebar/_sidebar.html' %}
+        <!-- Content Wrapper -->
+        <div id="content-wrapper">
+            <!-- Topbar -->
+            {% include 'partials/Topbar/_topbar.html' %}
+            <div id="content">
+                {% include 'partials/Bodypart/_bodypart.html' %}
+            </div>
+            <!-- Footer -->
+            {% include 'partials/Footer/_footer.html' %}
+        </div>
+    </div>
+</body>
+</html>

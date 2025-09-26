@@ -1,0 +1,61 @@
+
+<!-- partials/Bodypart/_bodypart_textual_explanation.html -->
+<style>
+    .textual-explanation {
+        display: flex;
+        flex-direction: column; /* Stack containers vertically */
+        height: 100%; /* 100% height of its parent container */
+        width: 20%; /* Relative to the width of its parent container*/
+        background-color: #353434;
+        box-sizing: border-box;
+        border: 3px solid #575757; 
+        border-radius: 10px;
+        /* padding-right: 25px; Adjust spacing on the right to balance with the border thickness */
+    }
+
+    .text-top {
+        display: flex;
+        height: 40px;
+        width: 100%; /* Same width as parent container */
+        align-items: center;
+        justify-content: center;
+        background-color: #353434;
+        box-sizing: border-box;
+        border-bottom: 3px solid #575757;
+        border-radius: 10px;
+        color: #E0E0E0; /* Light grey text */
+        font-weight: bold;
+        font-size: 20px;
+    }
+
+    .text-bottom {
+        display: flex;
+        min-height: 40px; 
+        max-height: 200px;
+        width: 100%;
+        /* align-items: center;
+        justify-content: center; */
+        background-color: #353434;
+        box-sizing: border-box;
+        border-top: 3px solid #575757;
+        border-radius: 10px;
+        padding-top: 5px;
+        padding-right: 20px;
+        padding-bottom: 20px;
+        padding-left: 20px;
+        /* padding: 5px 20px 20px 20px; padding-top, padding-right, padding-bottom, padding-left */
+        overflow-y: auto; /* Vertical overflow */
+        color: #E0E0E0; /* Light grey text */
+        font-weight: bold;
+        font-size: 18px;
+    }
+</style>
+
+<aside class="textual-explanation">
+    <div class="text-top">
+        Notes/Remarks:
+    </div>
+    <div class="text-bottom">
+        <p>Notes will be added here!</p>
+    </div>
+</aside>

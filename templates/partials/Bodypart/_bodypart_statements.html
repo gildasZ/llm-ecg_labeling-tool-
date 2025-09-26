@@ -1,0 +1,90 @@
+
+<!-- partials/Bodypart/_bodypart_statements.html -->
+<style>
+    .section-header {
+        display: flex;
+        flex-direction: row;    /* Horizontal layout to include sidebar */
+        height: 100%;
+        width: 100%;            /* Take full width of the parent */
+        background-color: #353434;
+        align-items: center;
+        justify-content: center;
+        /* flex-shrink: 0; Prevent shrinking: Already used on the parent container */
+    }
+
+    .section-label {
+        flex: 1;
+        text-align: center;
+        color: white;
+        font-size: 20px;
+        box-sizing: border-box;
+        border: 5px solid hsl(61, 84%, 20%);
+        background-color: hsl(61, 84%, 20%);
+        border-radius: 10px;
+    }
+
+    .statements-container {
+        overflow: hidden; /* Hide overflow*/
+        height: 95%; /* Adjust to 95% of the section-header height, dynamically */
+        width: 1400px;
+        box-sizing: border-box;
+        border: 5px solid hsl(239, 66%, 24%);
+        background-color: #575757;
+        border-radius: 10px;
+        position: relative; /* Necessary for absolute positioning of children */
+        display: flex; /* Maintain center alignment */
+        justify-content: center; /* Center horizontally */
+        align-items: center; /* Center vertically */
+    }
+
+    .statement {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        display: flex;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+        padding-left: 10px;
+        overflow-x: auto;
+        font-size: 25px;
+        font-weight: bold;
+        box-sizing: border-box;
+        color: #4fa1ee; /* #4fa1ee; (Blue) or use white*/
+        white-space: nowrap;
+    }
+</style>
+
+<header class="section-header">
+    <div class="section-label">
+        Statements (scrollable):
+    </div>
+    <div class="statements-container"> <!-- Container for statements -->
+        <div class="statement"></div> 
+        <!-- <div class="statement">(Only valid for ECG data.)</div> -->
+    </div>
+</header>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const statementsContainer = document.querySelector('.statements-container');
+        function updateStatement(content = '') {
+            // Clear the container
+            statementsContainer.innerHTML = ''; 
+            // Create a new div for the statement
+            const newStatement = document.createElement('div');
+            newStatement.className = 'statement';
+            newStatement.textContent = content; // Set the content of the statement
+            // Append the new statement to the container
+            statementsContainer.appendChild(newStatement);
+        }
+        document.addEventListener('remarkofmodel', function(event) {
+            // const { remark } = event.detail;
+            // updateStatement(remark); // Update with the remark from the event detail
+            // Instead of using event.detail.remark, we forcibly show the placeholder:
+            updateStatement('Statements on the ECG data will appear here.');
+        });
+        document.addEventListener('fileSelected', function() {
+            updateStatement(); // Clear the statement field (default empty content)
+        });
+    });
+</script>

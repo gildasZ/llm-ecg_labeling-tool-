@@ -1,0 +1,71 @@
+
+<!-- partials/Bodypart/_bodypart.html -->
+
+<style>
+    .main-body {
+        display: flex;              /* Default flex-direction will be row' if not specified */
+        flex-direction: column;
+        /* flex-grow: 1;               Take available space */
+        height: 100%;
+        width: 100%;            /* Take full width of the parent */
+        overflow: hidden;
+        background-color: #d82020; /* Main body background color */
+    }
+
+    .Statements-container {
+        display: flex;
+        flex-direction: row;    /* Horizontal layout to include sidebar */
+        height: 50px;
+        width: 100%;            /* Take full width of the parent */
+        background-color: #c54ecf;
+        flex-shrink: 0; /* Prevent shrinking */
+    }
+
+    .contain-ECG_graph_area {
+        display: flex;
+        flex: 1; 
+        /* flex: none; Remove the ability to grow */
+        width: 100%; /* Take full width of the parent */
+        /* min-height: 0;  Important for flex children in column layout */
+        background-color: #121213;
+    }
+
+    .bottom-container {
+        /*display: grid; 
+        grid-template-columns: 80% 20%; Adjust the ratio based on your needs 
+        grid-gap: 0px; Optional: adds space between columns */
+        display: flex;
+        flex-direction: row; 
+        /* height: 600px; */
+        /* height: 400px; Fixed height */
+        width: 100%;
+        background-color: #27293d;
+    }
+</style>
+
+<div class="main-body">
+
+    <div class="Statements-container">
+        <!-- Statements -->
+        {% include 'partials/Bodypart/_bodypart_statements.html' %}
+        <!-- End of Statements -->
+    </div>
+
+    <div class="contain-ECG_graph_area">
+        <!-- Display ECG graph -->
+        {% include 'partials/Bodypart/_bodypart_ECGgraph.html' %}
+        <!-- End Display ECG graph -->
+    </div>
+
+    <!-- Patterns and Textual Explanation -->
+    <div class="bottom-container">
+        <!-- Display labeled patterns -->
+        {% include 'partials/Bodypart/_bodypart_labeled_patterns.html' %}
+        <!-- End Display labeled patterns -->
+
+        <!-- Display Textual Explanation -->
+        {% include 'partials/Bodypart/_bodypart_textual_explanation.html' %}
+        <!-- End Display Textual Explanation -->
+    </div>
+</div>
+

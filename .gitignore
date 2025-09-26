@@ -1,0 +1,42 @@
+# Ignore all files _inside_ Raw_Time_Series_Data, but keep the folder
+/media/Raw_Time_Series_Data/*
+# But do track this one placeholder so the empty folder is kept in clones
+!/media/Raw_Time_Series_Data/.gitkeep
+
+# # Re‑include a specific subfolder directory
+# !/media/Raw_Time_Series_Data/subfolder/
+# # Re‑include everything inside that subfolder, recursively
+# !/media/Raw_Time_Series_Data/subfolder/** 
+
+# Ignore whole folder
+media/Raw_Time_Series_Data_CSV_Annotations/**
+# Ignore PyTorch model files in ALL_MODELS and its subdirectories
+ALL_MODELS/**/*.pth
+
+# Ignore all compiled Python files
+*.pyc
+__pycache__/
+
+# Virtual environment (Pipenv or others)
+.env
+venv/
+.pipenv/
+Pipfile.lock
+Pipfile
+
+# Django specific
+db.sqlite3
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+# _list_structure.py
+# _code_state.py
+
+# Others
+_git_update.sh

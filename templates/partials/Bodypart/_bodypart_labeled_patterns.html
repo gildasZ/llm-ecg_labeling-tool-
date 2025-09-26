@@ -1,0 +1,733 @@
+
+<!-- partials/Bodypart/_bodypart_labeled_patterns.html -->
+<style>
+    .Area-for-labeled-patterns {
+        display: flex;
+        /* height: 100%; 400px 100% height of its parent container */
+        width: 80%; /* Relative to the width of its parent container */
+        background-color: #6e5ec4;
+        overflow: hidden;
+    }
+
+    .labeled-patterns { /* Change border color to Red */
+        display: flex;
+        /* height: 100%; 100% height of its parent container */
+        max-height: 200px;
+        width: 100%; /* Relative to the width of its parent container*/
+        background-color: #353434;
+        color: #FFFFFF; /* White text */
+        flex-direction: column;
+        align-items: center;
+        /* border-radius: 15px;  */
+        border: 3px solid #575757; /* Use #e71515 (Red) for testing, and after testing use #575757 */
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+
+    .header {
+        display: flex;
+        width: 100%;
+        min-height: 40px; 
+        /* height: 40px; */
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 3px solid #575757; /* Adds a bottom border */
+        box-sizing: border-box; /* Ensures padding and border are included in width */
+        padding-right: 15px; /* Adjust spacing on the right to balance with the border thickness */
+    }
+
+    .header div {
+        display: flex; /* Enables flexbox properties inside the div */
+        align-items: center; /* Centers content vertically inside the div */
+        justify-content: center; /* Centers content horizontally */
+        overflow-x: auto;
+        white-space: nowrap;
+        color: #E0E0E0; /* Light grey text */
+        font-weight: bold;
+        font-size: 20px;
+        padding: 0 10px; /* Padding for aesthetic spacing: No top and bottom padding, but right and left padding. */
+        border-right: 3px solid #575757; /* Grey border */
+        height: 100%; /* Make sure it matches the height of the header */
+        /* height: 40px; Make sure it matches the height of the header */
+        box-sizing: border-box; /* Ensures padding and border are included in width */
+    }
+
+    .header div:last-child {
+        border-right: none; /* Removes border from the last div */
+    }
+    
+    .patterns-table-container { /* Change border color to Yellow */
+        /* display: block; */
+        display: flex; /* Change from flex to block to better control overflow */
+        min-height: 40px; 
+        max-height: 200px;
+        width: 100%;
+        overflow-y: auto; /* Allows vertical scrolling */
+        border: 3px solid #575757; /* Use #bbcf8a (Yellow) for testing, and after testing use #575757 */
+        box-sizing: border-box;
+        padding-top: 5px; 
+        /*padding-right: 15px; Adds right padding to the entire table container */
+        padding-bottom: 20px;
+    }
+
+    #patterns-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    #patterns-table tr {
+        border-bottom: 3px solid #575757; /* Adds a bottom border to each row */
+    }
+
+    #patterns-table tr:first-child th, #patterns-table tr:first-child td {
+        border-top: none; /* Removes the top border from the first row of the table */
+    }
+
+    #patterns-table th, #patterns-table td {
+        /* border: 1px solid #575757; Adds borders to cells */
+        text-align: center;
+        padding: 8px;
+        color: #E0E0E0; /* #1cb84b (Light grey text) */
+        box-sizing: border-box; 
+        font-weight: bold;
+        font-size: 18px;
+        justify-content: center; /* Centers content horizontally */
+    } 
+
+    #patterns-table td:last-child {
+        border-right: none; /* Ensures there is no border on the right side of the last cell */
+    }
+
+    .items { width: 10%; }
+    .start-index, .end-index { width: 15%; }
+    .label { width: 35%; } /* Reduced from 45% for .delete*/
+    .delete { width: 10%; overflow: hidden;} /* New delete column */
+    .color { width: 10%; }
+
+    .color-box {
+        width: 18px; /* Specific width for the color box */
+        height: 18px; /* Specific height for the color box */
+        border: 1px solid #575757; /* Border for definition */
+        /* box-sizing: border-box; */
+        margin: auto; /* This will help in centering in case flex properties fail */
+    }
+
+    /* ------------------------------------- Dropdown button styles ------------------------------------- */
+    .label {
+        /* display: flex; */
+        align-items: center;
+        /* position: relative; */
+        justify-content: center;
+        gap: 15px;
+        /* z-index: 10;  */
+    }
+
+    /* Style the dropdown icon as a button-like element */
+    .dropdown-icon {
+        cursor: pointer;
+        font-size: 14px;
+        color: #ffffff;
+        background-color: #353434; /* Background color for the dropdown box */
+        padding: 5px 10px; /* Add some padding for the box effect */
+        border-radius: 8px;
+        border: 1px solid #00080c; /* #159ae7 */
+        display: inline-block;
+        transition: all 0.3s ease-in-out; 
+    }
+
+    /* Hover effect */
+    .dropdown-icon:hover {
+        color: rgb(8, 8, 8);
+        background-color: #ffffff; /* Slightly lighter shade on hover */
+        border-color: #fbff00; /* Change border color on hover */
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3); /* Add shadow for depth */
+        transform: scale(1.1); /* Enlarge the button slightly on hover */
+        font-size: 16px; /* Slight increase in font size on hover */
+        font-weight: bold; /* Make the text bold on hover */
+    }
+
+    /* Click (active) effect */
+    .dropdown-icon:active {
+        background-color: #ffffff; /* Darker background on click */
+        border-color: #ff6347; /* Make the border more intense on click */
+        box-shadow: inset 0px 4px 8px rgba(0, 0, 0, 0.4); /* Create an inset shadow for pressed effect */
+        transform: scale(0.95); /* Slightly reduce size on click */
+        font-size: 16px; /* Keep the font size increased on click */
+        font-weight: bold; /* Bold text on click */
+    }
+
+    /* Dropdown Content (Hidden by default) */
+    .dropdown-content {
+        display: none; /* Ensures it is hidden initially */
+        flex-direction: column; /* Ensures content aligns vertically */
+        position: fixed; /* Absolute (absolute; fixed;) positioning to take it out of the layout flow */
+        bottom: 300px; 
+        right: 30%;
+        width: auto;
+        background-color: #353434;
+        box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+        min-width: 150px;
+        min-height: 50px;
+        z-index: 15;
+        padding: 5px; /* Adjust padding */
+        border: 2px solid #ffffff;
+        border-radius: 8px;
+        box-sizing: border-box;
+        color: #ffffff;
+        max-height: 450px; /* Limit height if there are many items */
+        overflow-y: auto;
+    }
+
+    /* Checkboxes inside dropdown */
+    .dropdown-content div {
+        display: block; /* Ensure each label-checkbox is on a new line */
+        margin: 2px 0; /* Reduced margin between checkboxes */
+        padding: 2px 0; /* Reduced padding between checkboxes */
+    }
+
+    /* Show the dropdown when clicked */
+    .show {
+        display: block;
+    }
+
+    /* Style for the checkbox-label wrapper */
+    .checkbox-label {
+        display: flex;           /* Use flex to align items horizontally */
+        align-items: center;           /* Center items vertically */
+        justify-content: flex-start;    /* Align items to the start */
+        padding: 2px 0;          /* Vertical spacing between items */
+        width: 100%;             /* Full width of the container */
+        box-sizing: border-box;   /* Ensure padding is included in the total width */
+    }
+
+    /* Style for the label */
+    .checkbox-label label {
+        margin-right: 10px;      /* Space between label and checkbox */
+        font-size: 16px;         /* Adjust font size as needed */
+        color: #ffffff;          /* Text color */
+    }
+
+    /* Style for the checkbox */
+    .checkbox-label input[type="checkbox"] {
+        transform: scale(1.2);   /* Increase the size of the checkbox if desired */
+        margin-right: 5px; /* Add space between checkbox and label */
+    }
+
+    #search-bar {
+        width: 40%; /* Set the width of the search bar */
+        padding: 0px; /* Remove padding */
+        margin-right: 10px; /* Add space between the search bar and the "Items" text */
+        border-radius: 5px; /* Rounded corners */
+        border: 1px solid #ddd; /* Light grey border */
+    }
+
+    .action-button {
+        padding: 8px 16px; /* Controls the size of the button */
+        font-size: 16px; /* Controls text size */
+        color: #fff; /* Text color */
+        border: none; /* Remove default border */
+        border-radius: 5px; /* Rounded corners */
+        cursor: pointer; /* Changes cursor to pointer on hover */
+        margin-right: 10px; /* Adds space between buttons */
+    }
+
+    .action-button.delete {
+        background-color: #e74c3c; /* Red background for Delete button */
+        margin-left: 20px; /* Add left margin to move the button away from the left edge */
+    }
+
+    .action-button.cancel {
+        background-color: #3498db; /* Blue background for Cancel button */
+    }
+
+    /* Hover and active effects */
+    .action-button:hover {
+        opacity: 0.8; /* Slightly reduce opacity on hover */
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Add a shadow on hover for depth */
+    }
+
+    .action-button:active {
+        transform: scale(0.95); /* Slightly reduce the size on click */
+        box-shadow: inset 0px 4px 8px rgba(0, 0, 0, 0.3); /* Create an inset shadow for a pressed effect */
+    }
+
+    /* Additional styling for the checkbox in Delete column */
+    .delete-checkbox {
+        transform: scale(1.2); /* Adjust the size if needed */
+        cursor: pointer;
+    }
+
+    /* ------------------------------------- Delete button in headers tyles ------------------------------------- */
+    /* Style the Delete header button */
+    .delete-header-btn {
+        font-size: 18px;
+        color: #ffffff;
+        background-color: #353434; /* Dark background color */
+        padding: 6px 16px; /* Increase padding for a larger button */
+        border-radius: 8px;
+        border: 2px solid #ff6347; /* Thicker red border for more emphasis */
+        cursor: pointer;
+        transition: all 0.3s ease-in-out; /* Smooth transitions */
+        outline: none; /* Remove default outline */
+        position: relative;
+        overflow: hidden; /* For the glow effect */
+    }
+
+    /* Hover effect for the Delete header button */
+    .delete-header-btn:not([disabled]):hover {
+        color: #ffffff; /* White text */
+        background-color: #ff6347; /* Vibrant red background */
+        border-color: #ff6347; /* Matching border with background */
+        box-shadow: 0px 0px 15px 5px rgba(255, 99, 71, 0.8); /* Glowing red shadow */
+        transform: scale(1.1); /* Increase size on hover */
+        font-weight: bold; /* Bold text on hover */
+        transform-origin: center; /* Prevent scaling from affecting the layout */
+    }
+
+    /* Add a glow effect while hovering */
+    .delete-header-btn::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,99,71,0.6) 10%, transparent 60%);
+        transition: opacity 0.3s;
+        opacity: 0;
+        z-index: 0;
+    }
+
+    .delete-header-btn:not([disabled]):hover::before {
+        opacity: 1;
+    }
+
+    /* Click (active) effect */
+    .delete-header-btn:not([disabled]):active {
+        background-color: #e74c3c; /* Darker red on click */
+        border-color: #ff6347; /* Border remains red */
+        box-shadow: inset 0px 4px 8px rgba(0, 0, 0, 0.4), 0px 0px 20px rgba(255, 99, 71, 0.8); /* Inner shadow + glow */
+        transform: scale(0.95); /* Slightly reduce size on click */
+        animation: shake 0.3s ease-in-out; /* Add a slight shake on click */
+        transform-origin: center; /* Ensure scaling doesn't break the layout */
+    }
+
+    /* Keyframes for the shake effect on click */
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-4px); }
+        50% { transform: translateX(4px); }
+        75% { transform: translateX(-4px); }
+    }
+</style>
+
+<div class="Area-for-labeled-patterns">
+    <div class="labeled-patterns">
+        <div class="header">
+            <div class="items">
+                <input id="search-bar" type="text" placeholder="Search..." />
+                Items
+            </div>
+            <div class="start-index">Start Index</div>
+            <div class="end-index">End Index</div>
+            <div class="label">
+                Label
+                <span id="dropdown-icon" class="dropdown-icon"> ▼ (Select)</span>
+                <!-- <div id="labelDropdown" class="dropdown-content"></div> -->
+            </div>
+            <div class="color">Color</div>
+            <div class="delete">
+                <button id="delete-header-btn" class="delete-header-btn">Delete</button>
+            </div>
+        </div>
+        <div class="patterns-table-container">
+            <table id="patterns-table">
+                <tbody>
+                    <!-- Rows will be added here dynamically -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div id="labelDropdown" class="dropdown-content"></div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {    
+        const patternsTable = document.getElementById('patterns-table').getElementsByTagName('tbody')[0];
+        const dropdownIcon = document.getElementById('dropdown-icon');
+        const dropdownContent = document.getElementById('labelDropdown');
+        const deleteHeaderButton = document.getElementById('delete-header-btn');
+        let labelsDataGlobal = [];  // Store labelsData globally
+        let retrievedData = [];  // Store the retrieved pattern data
+        const searchBar = document.getElementById('search-bar');
+
+        function resetSearchBar() {
+            const searchBar = document.getElementById('search-bar');
+            searchBar.value = ''; // Clear the search input
+            searchBar.placeholder = "Search..."; // Ensure the placeholder is set correctly
+        }
+        function updateDeleteButtonState() {
+            // Find all checkboxes currently in the table body
+            const checkBoxes = patternsTable.querySelectorAll('tbody .delete-checkbox');
+            let anyChecked = false;
+            // Loop through them to see if at least one is checked
+            for (let i = 0; i < checkBoxes.length; i++) {
+                if (checkBoxes[i].checked) {
+                    anyChecked = true;
+                    break; // Stop checking once we find one checked box
+                }
+            }
+            console.log(`anyChecked = ${anyChecked}`); // Verify the outcome
+            // Disable the button if no checkboxes are checked, enable otherwise
+            deleteHeaderButton.disabled = !anyChecked;
+            console.log(`Setting deleteHeaderButton.disabled to: ${deleteHeaderButton.disabled}`); // *** CRITICAL CHECK ***
+            // Optional: Add visual feedback (e.g., change opacity)
+            if (deleteHeaderButton.disabled) {
+                deleteHeaderButton.style.opacity = '0.5'; // Example: Make it look faded
+                deleteHeaderButton.style.cursor = 'not-allowed';
+            } else {
+                deleteHeaderButton.style.opacity = '1';
+                deleteHeaderButton.style.cursor = 'pointer';
+            }
+        }
+        function resetTable() {
+            patternsTable.innerHTML = ''; // Clears the table
+            updateDeleteButtonState(); // Update button state after clearing
+        }
+
+        // Search bar at initialization
+        resetSearchBar();
+        updateDeleteButtonState();
+
+        function scrollToBottom() {
+            const patternsContainer = document.querySelector('.patterns-table-container');
+            patternsContainer.scrollTop = patternsContainer.scrollHeight;
+        }
+
+        function insertRowInTable(item, applyTextColor = false) {
+            // Create a new row in the table
+            const row = patternsTable.insertRow();
+
+            const itemCell = row.insertCell(0);
+            itemCell.className = 'items';
+            itemCell.textContent = item['Item Number'];
+
+            const startIndexCell = row.insertCell(1);
+            startIndexCell.className = 'start-index';
+            // startIndexCell.textContent = item['Start Index'];
+            // Replace 'T' with a space in 'Start Index' for display
+            startIndexCell.textContent = item['Start Index'].replace('T', ' ');
+
+            const endIndexCell = row.insertCell(2);
+            endIndexCell.className = 'end-index';
+            // endIndexCell.textContent = item['End Index'];
+            // Replace 'T' with a space in 'End Index' for display
+            endIndexCell.textContent = item['End Index'].replace('T', ' ');
+
+            const labelCell = row.insertCell(3);
+            labelCell.className = 'label';
+            labelCell.textContent = item['Label'];
+            
+            // Create a color box for the color cell
+            const colorCell = row.insertCell(4);
+            colorCell.className = 'color';
+            const colorDiv = document.createElement('div');
+            colorDiv.className = 'color-box';
+            colorDiv.style.backgroundColor = item['Color']; // Sets the background color dynamically
+            colorCell.appendChild(colorDiv);
+
+            // Conditionally apply/override custom text color to the label cell
+            if (applyTextColor) {
+                // Example of setting text color dynamically
+                labelCell.style.color = '#33ff57'; // Setting a tomato ('#FF6347') or green ('#397446') or lime green ('#472dda') color for Label
+            }
+
+            // Add the "Delete" column with a checkbox
+            const deleteCell = row.insertCell(5); // Add a new cell for Delete
+            deleteCell.className = 'delete';
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox'; // Create checkbox input
+            checkbox.className = 'delete-checkbox'; // Optional: Add a class to style it later
+            deleteCell.appendChild(checkbox); // Append checkbox to the cell
+        }
+
+        // Function to repopulate the table with the given/retrieved data
+        function populateTableWithPatterns(data, applyTextColor = false) {
+            resetSearchBar();
+            data.forEach(item => {
+                // Check if the label exists in labelsDataGlobal and its display property is set to 1
+                const matchingLabel = labelsDataGlobal.find(labelItem => labelItem.value === item['Label'] && labelItem.display === 1);
+                if (matchingLabel) { // Proceed only if a match is found and display is 1
+                    // Use the helper function to insert rows
+                    insertRowInTable(item, applyTextColor);
+                }
+            });
+            updateDeleteButtonState(); // Update button state after populating
+        }
+
+        // Function to populate dropdown with checkboxes
+        function populateDropdown() {
+            console.log("Clearing dropdown content");
+            dropdownContent.innerHTML = ''; // Clear existing content
+
+            labelsDataGlobal.forEach((item, index) => {
+                console.log("Adding item to dropdown:", item.value);
+
+                const checkboxWrapper = document.createElement('div');
+                checkboxWrapper.className = 'checkbox-label';
+
+                // Create the label
+                const label = document.createElement('label');
+                label.textContent = item.value;
+
+                // Create the checkbox
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.checked = item.display === 1;
+
+                // Append label and checkbox to the wrapper
+                checkboxWrapper.appendChild(label);
+                checkboxWrapper.appendChild(checkbox);
+
+                // Append the wrapper to the dropdown content
+                dropdownContent.appendChild(checkboxWrapper);
+
+                // Add event listener to the checkbox
+                checkbox.addEventListener('change', function() {
+                    labelsDataGlobal[index].display = this.checked ? 1 : 0;
+                    document.dispatchEvent(new CustomEvent('labels_display_update', { detail: labelsDataGlobal }));
+                    console.log("***'labels_display_update' event dispatched with data:", labelsDataGlobal);
+                    // Reset and repopulate the table based on the updated display status of labels, and scroll to bottom
+                    resetTable(); // Clear the table first
+                    populateTableWithPatterns(retrievedData); // Repopulate the table with the current data
+                    scrollToBottom();
+                });
+            });
+            console.log("Dropdown populated");
+        }
+
+        // Function to retrieve selected data from `retrievedData`
+        function getSelectedRowsData() {
+            const searchValue = document.getElementById('search-bar').value.trim();
+            let selectedRowData = [];
+            // Check if the search value exists in retrievedData
+            if (!isNaN(searchValue) && searchValue !== '') {
+                const foundItem = retrievedData.find(item => item['Item Number'] === searchValue);
+                if (foundItem) {
+                    selectedRowData.push(foundItem);  // Push the found item
+                }
+            } 
+            return selectedRowData;  // Return the selected row from retrievedData
+        }
+
+        // Function to dispatch the 'buttonClick' event with the selected rows' data
+        function dispatchDeleteEvent(rowDataList) {
+            if (rowDataList.length > 0) {
+                // Dispatch the event with the action and data
+                document.dispatchEvent(new CustomEvent('buttonClick', {
+                    detail: {
+                        action: 'delete',
+                        data: rowDataList  // Send the list of row data
+                    }
+                }));
+                console.log("*** 'buttonClick' event dispatched with action: 'delete' and data:", rowDataList);
+            } else {
+                console.log("No rows selected for deletion.");
+            }
+        }
+
+        // Helper function to create Delete and Cancel buttons
+        function createDeleteCancelButtons() {
+            // Create a new row for the buttons
+            const buttonRow = document.createElement('tr');
+            buttonRow.id = 'action-buttons'; // Give it an ID for future reference
+
+            // Create a new cell that spans across all columns
+            const buttonCell = document.createElement('td');
+            buttonCell.colSpan = 5; // Adjust this based on the number of columns in your table
+            buttonCell.style.padding = '10px';
+            buttonCell.style.textAlign = 'left'; // Align the buttons to the left
+
+            // Create Delete button
+            const deleteBtn = document.createElement('button');
+            deleteBtn.id = 'delete-btn';
+            deleteBtn.textContent = 'Delete';
+            deleteBtn.classList.add('action-button', 'delete'); // Apply CSS classes
+
+            // Create Cancel button
+            const cancelBtn = document.createElement('button');
+            cancelBtn.id = 'cancel-btn';
+            cancelBtn.textContent = 'Cancel';
+            cancelBtn.classList.add('action-button', 'cancel'); // Apply CSS classes
+
+            // Append buttons to the cell
+            buttonCell.appendChild(deleteBtn);
+            buttonCell.appendChild(cancelBtn);
+
+            // Append the cell to the row
+            buttonRow.appendChild(buttonCell);
+
+            // Append the button row right after the found item row
+            const patternsTable = document.getElementById('patterns-table').getElementsByTagName('tbody')[0];
+            patternsTable.appendChild(buttonRow);
+
+            // Add functionality to the Delete button to dispatch an event with selected data
+            deleteBtn.addEventListener('click', function() {
+                // Retrieve data from all displayed rows
+                const SelectedRowsData = getSelectedRowsData();
+                // Dispatch the event with the retrieved data
+                dispatchDeleteEvent(SelectedRowsData);
+            });
+
+            // Add functionality to the Cancel button to repopulate the table with retrievedData
+            cancelBtn.addEventListener('click', function() {
+                resetTable(); // Clears the current table
+                populateTableWithPatterns(retrievedData); // Repopulates the table with retrievedData
+                scrollToBottom(); // Scroll to the bottom of the table
+                resetSearchBar(); // Resets the search bar to placeholder state
+            });
+        }
+
+        // Function to retrieve the data of selected rows (with checked checkboxes)
+        function getCheckedRowsData() {
+            const rows = document.querySelectorAll('#patterns-table tbody tr'); // Get all rows from the table
+            let selectedRowData = [];
+            // Loop through all rows to check for checked checkboxes
+            rows.forEach(row => {
+                const checkbox = row.querySelector('.delete-checkbox'); // Find the checkbox in the current row
+                if (checkbox && checkbox.checked) {
+                    // Retrieve the Item Number (or identifier) from the current row
+                    const itemNumber = row.cells[0].textContent;
+                    // Use retrievedData to find the matching item
+                    const foundItem = retrievedData.find(item => item['Item Number'] === itemNumber);
+
+                    // If the item is found in retrievedData, push it to the selectedRowData array
+                    if (foundItem) {
+                        selectedRowData.push(foundItem);
+                    }
+                }
+            });
+            return selectedRowData; // Return the array of selected row data
+        }
+
+        patternsTable.addEventListener('change', function(event) {
+            // Check if the changed element is one of our delete checkboxes
+            if (event.target.matches('.delete-checkbox')) {
+                updateDeleteButtonState(); // Update the button state
+            }
+        });
+
+        searchBar.addEventListener('input', function() {
+            const searchValue = searchBar.value.trim();
+            if (!isNaN(searchValue) && searchValue !== '') {
+                // Check if the entered value is a number and exists in the retrievedData
+                const foundItem = retrievedData.find(item => item['Item Number'] === searchValue);
+                if (foundItem) {
+                    console.log("Item number found in retrieved data.");
+                    resetTable(); // Clear the table first
+                    // Use the helper function to add the found row
+                    insertRowInTable(foundItem);
+                    // Scroll to the bottom of the table
+                    scrollToBottom();
+                    // Create Delete and Cancel buttons below the table
+                    createDeleteCancelButtons();
+                } else {
+                    console.log("Item number not found in retrieved data.");
+                }
+            }
+        });  
+
+        document.addEventListener('fileSelected', function(event) {
+            // resetTable(); // Reset the table when a new file is selected
+            // console.log("$$$ Patterns information table was reset.");
+        });
+
+        document.addEventListener('DjangoDash_message', function(event) {
+            const labeledPattern = event.detail.Annotation_message;
+            const clickIndices = event.detail.Click_indices || []; // Get the click indices from the event detail
+            const color = event.detail.Color || '#ff7f0e'; // Default color is #ffffff (White) or #ff7f0e (Orange)
+            const Item_number = event.detail.Item_number; 
+
+            console.log("*** File '_bodypart_labeled_patterns.html' received Annotation_message:", labeledPattern);
+            console.log("*** Click indices:", clickIndices);
+            console.log("*** and Item number:", Item_number);
+            // Construct new pattern object for consistency with the populateTableWithPatterns function
+            const newPattern = {
+                'Item Number': Item_number,
+                'Start Index': clickIndices[0] || 'N/A',
+                'End Index': clickIndices[1] || 'N/A',
+                'Label': labeledPattern,
+                'Color': color
+            };
+            // Add the new pattern to retrievedData array
+            retrievedData.push(newPattern);
+            console.log("$$$ retrieved data updated:", retrievedData);
+            // Add the new pattern to the table using the same function
+            populateTableWithPatterns([newPattern], true);
+            // Scroll to bottom after the new pattern is added
+            scrollToBottom();
+            console.log("$$$ New pattern information added to the table.");
+        });
+
+        document.addEventListener('DjangoDash_retrieved_data_message', function(event) {
+            retrievedData = event.detail.Existing_Data; // Get the retrieved data from the event detail
+            // Reset the table
+            resetTable(); 
+            console.log("$$$ Patterns information table was reset.");
+            // Repopulate the table with the retrieved data using the function
+            populateTableWithPatterns(retrievedData);
+            // Scroll to bottom after the new patterns are added
+            scrollToBottom();
+            console.log("$$$ Patterns information table repopulated with retrieved data.");
+        });
+
+        // Listen for 'labels_display' event
+        document.addEventListener('labels_display', function(event) {
+            // Store the received data into a global variable without processing it immediately
+            labelsDataGlobal = event.detail.Labels_data;
+            console.log("***'labels_display' data received:", labelsDataGlobal);
+        });
+
+        // Toggle dropdown visibility on click
+        dropdownIcon.addEventListener('click', function(event) {
+            event.stopPropagation(); // Prevent the click event from bubbling up
+            console.log("Dropdown icon clicked");
+            
+            // Toggle visibility by adding/removing 'show' class and adjusting display style
+            if (dropdownContent.classList.contains('show')) {
+                dropdownContent.classList.remove('show');
+                dropdownContent.style.display = 'none'; // Hide it if visible
+            } else {
+                dropdownContent.classList.add('show');
+                dropdownContent.style.display = 'block'; // Show it if hidden
+                if (dropdownContent.innerHTML === '') {
+                    console.log("Populating dropdown for the first time");
+                    populateDropdown(); // Populate dropdown with dummy data only if empty
+                }
+            }
+        });
+
+        // Prevent the dropdown from closing when clicking inside it
+        dropdownContent.addEventListener('click', function(event) {
+            event.stopPropagation(); // Prevent click inside dropdown from closing it
+        });
+
+        // Add window click listener to close the dropdown when clicked outside
+        window.addEventListener('click', function() {
+            if (dropdownContent.classList.contains('show')) {
+                console.log("Closing dropdown because clicked outside");
+                dropdownContent.classList.remove('show');
+                dropdownContent.style.display = 'none'; // Hide it
+            }
+        });
+    
+        document.getElementById('delete-header-btn').addEventListener('click', function() {
+            console.log("Delete button clicked!");
+            // Get the checked rows' data using the modified function
+            const selectedRowsData = getCheckedRowsData();
+            console.log("selectedRowsData to dispatch: ", selectedRowsData);
+            // Dispatch the event with the retrieved data
+            dispatchDeleteEvent(selectedRowsData);
+        });
+    });
+</script>

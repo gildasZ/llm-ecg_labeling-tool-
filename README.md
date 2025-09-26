@@ -1,4 +1,4 @@
-# 🛠️ Custom_Labeling-Tool with Auto-Labeller
+# 🛠️ ECG_Labeling-Tool with Auto-Labeller
 
 ## 📊 Description
 This project is a custom time-series labeling tool built using Django, Plotly, and Dash. Originally designed for automated ECG waveform annotation, this version uses financial trading data as a substitute due to the lack of labeled ECG datasets. It serves as a complete **Proof of Concept**, demonstrating the core functionalities of interactive, multi-feature time-series labeling via a web interface.
@@ -53,7 +53,7 @@ Make sure you have the following installed on your machine:
     DJANGO_CSRF_TRUSTED_ORIGINS='http://localhost:8000 http://127.0.0.1:8000' # Add others separated by space
 
     # Database Settings
-    POSTGRES_DB=db_label_v03 # CHANGE THIS TO YOUR DESIRED DB NAME (e.g., my_labeling_db)
+    POSTGRES_DB=db_label_v04 # CHANGE THIS TO YOUR DESIRED DB NAME (e.g., my_labeling_db)
     POSTGRES_USER=postgres   # CHANGE THIS TO YOUR DESIRED DB USER (e.g., labeling_user)
     POSTGRES_PASSWORD='Your_Password' # <-- CHANGE THIS! Use a strong password!
 

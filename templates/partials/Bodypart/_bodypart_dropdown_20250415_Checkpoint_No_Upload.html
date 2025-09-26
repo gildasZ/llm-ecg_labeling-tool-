@@ -1,0 +1,476 @@
+
+<!-- partials/Bodypart/_bodypart_dropdown.html -->
+<style>
+    .model-selection {
+        position: absolute; /* Positioned relative to .graph_display-area */
+        top: 3px; /* Spacing from the top */
+        left: 3px; /* Spacing from the left */
+        display: flex; /* Aligns children in a row */
+        align-items: center; /* Centers items vertically */
+        height: 35px;
+        background-color: #505050;
+        box-sizing: border-box;
+        border: 1px solid #067794;
+        padding: 5px;
+        cursor: default;
+        border-radius: 10px; /* Rounded corners, adjust radius as needed */
+        z-index: 10; /* Ensure it sits on top of other content */
+    }
+
+    /* .selection-field {
+        align-items: center;
+        background-color: #505050;
+        color: white;
+        box-sizing: border-box;
+        border: 1px solid #067794;
+        padding: 5px;
+        cursor: default;
+        width: 115px; 
+        border-radius: 10px; 
+        font-size: 14px; 
+        font-weight: bold;
+    } */
+
+    .run-model-btn {
+        position: relative; /* Needed to properly position the dropdown menu */
+        margin-left: 5px; /* Space between the label and dropdown */
+        /* border: 1px solid #067794; */
+        border: 2px solid hsl(239, 66%, 24%); /* Thicker red border for more emphasis */
+        background-color: #505050;
+        color: rgb(249, 253, 14); /* white; */
+        padding: 5px;
+        cursor: pointer;
+        width:75px; /* Example width, adjust as needed */
+        border-radius: 10px; /* Rounded corners, adjust radius as needed */
+        font-size: 16px;
+        font-weight: bold;
+        /* transition: transform 0.3s ease; Smooth transition for transform */
+        transition: all 0.3s ease-in-out; /* Smooth transitions */
+        outline: none; /* Remove default outline */
+        overflow: hidden; /* For the glow effect */
+        display: none;
+    }
+
+    /* Hover effect for the Delete header button */
+    .run-model-btn:hover {
+        color: #0c0000; /* White text */
+        background-color: #47ff8d; /* Vibrant red (#ff6347) background */
+        border-color: #ff6347; /* Matching border with background */
+        box-shadow: 0px 0px 15px 5px rgba(175, 255, 71, 0.8); /* Glowing red shadow */
+        transform: scale(1.1); /* Increase size on hover */
+        font-weight: bold; /* Bold text on hover */
+        transform-origin: center; /* Prevent scaling from affecting the layout */
+    }
+
+    /* Add a glow effect while hovering */
+    .run-model-btn::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,99,71,0.6) 10%, transparent 60%);
+        transition: opacity 0.3s;
+        opacity: 0;
+        z-index: 0;
+    }
+
+    .run-model-btn:hover::before {
+        opacity: 1;
+    }
+
+    /* Click (active) effect */
+    .run-model-btn:active {
+        background-color: #e74c3c; /* Darker red on click */
+        border-color: #ff6347; /* Border remains red */
+        box-shadow: inset 0px 4px 8px rgba(0, 0, 0, 0.4), 0px 0px 20px rgba(255, 99, 71, 0.8); /* Inner shadow + glow */
+        transform: scale(0.95); /* Slightly reduce size on click */
+        animation: shake 0.3s ease-in-out; /* Add a slight shake on click */
+        transform-origin: center; /* Ensure scaling doesn't break the layout */
+    }
+
+    .model-dropdown-container {
+        position: relative; /* Child .model-dropdown-menu will be absolutely positioned here */
+        display: inline-block;
+    }
+
+    .model-dropdown {
+        position: relative; /* So the .dropdown-menu can position relative to this */
+        margin-left: 5px; /* Space between the label and dropdown */
+        border: 1px solid #067794;
+        background-color: #505050;
+        color: white;
+        padding: 5px;
+        cursor: pointer;
+        border-radius: 10px; /* Rounded corners, adjust radius as needed */
+        font-size: 16px;
+        font-weight: bold;
+        transition: transform 0.3s ease; /* Smooth transition for transform */
+        text-align: center; /* Centers the text inside the dropdown */
+        width: 60px; /* Width is being adjusted in the JavaScript */
+        z-index: 11; /* Ensure it sits on top of other content */
+    }
+    
+    .model-dropdown:hover {
+        transform: scale(1.1); /* Slightly enlarge the button on hover */
+        background-color: #ffffff;
+        color: rgb(8, 8, 8);
+        font-size: 18px;
+        font-weight: bold;
+        box-sizing: border-box;
+    }
+
+    .model-dropdown:active {
+        transform: scale(0.9); /* Slightly reduce the size on click */
+        background-color: #ffffff; /* Change to a different color on click */
+        font-size: 20px; /* Increase font size for visibility */
+        font-weight: bold;
+    }
+
+    .model-dropdown-menu {
+        display: none; /* Initially hidden */
+        position: absolute;
+        top: calc(100% + 0px); /* Align top of menu just below the bottom of dropdown */
+        left: 8px;
+        /* transform: translateX(-50%); */
+        width: 200px; /* Set the width to match the dropdown button */
+        background-color: #93ad62;
+        border-radius: 10px;
+        box-shadow: 0px 8px 16px 0px rgba(255,0,0,1);
+        z-index: 150; /* Ensure it sits on top of other content */
+        transition: transform 0.3s ease;
+    }
+
+    .model-dropdown-details {
+        display: none;
+        position: absolute;
+        top: 50%;
+        left: 105%; /* Ensures the details appear to the right of the dropdown */
+        transform: translateY(-50%);
+        background-color: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 8px;
+        border-radius: 5px;
+        font-size: 14px;
+        white-space: nowrap;
+        z-index: 16;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Show details message when hovering */
+    .model-dropdown-item:hover .model-dropdown-details {
+        display: block;
+    }
+
+    .model-dropdown-item {
+        position: relative; /* Ensure the detail box is positioned correctly */
+        padding: 12px 16px;
+        text-decoration: none;
+        display: flex; /* Make dropdown-item a flex container */
+        align-items: center; /* Center content vertically */
+        justify-content: center; /* Center content horizontally */
+        color: white;
+        font-size: 16px;
+    }
+
+    .model-dropdown-item:hover {  
+        cursor: pointer;
+        transform: scale(1.25); /* Slightly enlarge the button on hover */
+        color: rgb(13, 13, 14);
+        font-size: 20px;
+        font-weight: bold;
+        background-color: #86d9e4;
+        border-radius: 10px;
+        border: 1px solid #ff3300;
+        padding: 0px;
+        transition: transform 0.2s ease, background-color 0.2s ease;
+    }
+
+    .model-dropdown-item:active {
+        transform: scale(0.9); /* Slightly reduce the size on click */
+    }
+
+    /* Additional remark field style */
+    #showRemarkLabel.remark-toggle {
+        display: none;
+        align-items: center;
+        color: white;
+        font-size: 12px;
+        font-weight: bold;
+        cursor: pointer;
+        background-color: #067794;
+        padding: 5px 10px;
+        border-radius: 8px;
+        margin-left: 8px;
+        transition: background-color 0.3s, transform 0.2s;
+    }
+    #showRemarkLabel.remark-toggle:hover {
+        background-color: #0a9fc0;
+        transform: scale(1.05);
+        z-index: 16;
+    }
+    #showRemarkLabel.remark-toggle input {
+        margin-right: 5px;
+        width: 14px;
+        height: 14px;
+        cursor: pointer;
+    }
+
+    .remark-field {
+        position: absolute;
+        top: 38px; /* below the model selection bar */
+        left: 3px;
+        display: none;
+        align-items: center;
+        background-color: rgba(50, 50, 50, 0.9);
+        color: #ffffff;
+        border: 1px solid #067794;
+        border-radius: 12px;
+        padding: 10px 15px;
+        font-size: 14px;
+        font-weight: bold;
+        z-index: 9;
+        white-space: nowrap;
+        box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+        transition: opacity 0.3s ease-in-out, transform 0.2s ease-in-out;
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    .remark-field.show {
+        display: flex;
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .model-add-btn {
+        /* Padding, alignment, font, etc. stay similar */
+        padding: 12px 16px;
+        text-align: center;
+        cursor: pointer;
+        font-size: 20px;
+        font-weight: bold;
+        color: #ffffff;
+        border-top: 2px solid #067794;
+        border-radius: 12px;            /* nice rounded corners */
+        /* Subtle gradient from dark gray to a slightly lighter gray */
+        background: linear-gradient(135deg, #505050 0%, #606060 100%);
+        /* Drop shadow for a 3D “button” look */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Hover effect: lighten the gradient, reduce shadow, maybe shift color a bit */
+    .model-add-btn:hover {
+        background: linear-gradient(
+            135deg,
+            #86d9e4 0%, 
+            #70c7d2 100%
+        );
+        color: #000;
+        transition: 0.2s ease;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Active (click) effect: “press in” look */
+    .model-add-btn:active {
+        transform: scale(0.95);
+        background: linear-gradient(
+            135deg,
+            #cccccc 0%, 
+            #aaaaaa 100%
+        );
+        box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.2);
+    }
+</style>
+
+<div class="model-selection" id="leadDropdown"> 
+    <!-- New container around the button + menu -->
+    <div class="model-dropdown-container">
+        <div class="model-dropdown"></div>
+        <div class="model-dropdown-menu"></div>
+    </div>
+    <!-- The Show Details checkbox -->
+    <label id="showRemarkLabel" class="remark-toggle">
+        <input type="checkbox" id="toggleRemarkVisibility" />
+        <span>Show Details</span>
+    </label>
+    <!-- Auto-label button -->
+    <div class="run-model-btn">Auto-label</div>
+</div>
+<!-- Hidden field for the model remark -->
+<div class="remark-field" id="modelRemarkField"></div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const modelDropdown        = document.querySelector('.model-dropdown');
+        const modelDropdownMenu    = document.querySelector('.model-dropdown-menu');
+        const autolabel            = document.querySelector('.run-model-btn');
+        const remarkField          = document.getElementById('modelRemarkField');
+        const toggleRemarkVisibility = document.getElementById('toggleRemarkVisibility');
+        const showRemarkLabel      = document.getElementById('showRemarkLabel');
+        // Store original dropdown styles for easy updates in the future
+        const originalDropdownStyles = {
+            backgroundColor: getComputedStyle(modelDropdown).backgroundColor,
+            color: getComputedStyle(modelDropdown).color,
+            boxShadow: 'none'
+        };
+
+        let selectedModel = null; // To store the currently selected model
+
+        // Function to reset the dropdown text and styling
+        function resetModelDropdown(show = false) {
+            modelDropdown.textContent = 'Choose a Model ▼';
+            // modelDropdown.style.textAlign = 'center'; // Ensure text is centered
+            modelDropdown.style.width = `${modelDropdown.textContent.length * 10 + 10}px`; // Adjust width dynamically
+            // Show or hide based on the parameter
+            modelDropdown.style.display = show ? 'block' : 'none';
+            if (show) {
+                // Highlight effect to grab attention
+                modelDropdown.style.backgroundColor = '#ffcc00'; // Bright yellow background
+                modelDropdown.style.color = '#000000'; // Black text for contrast
+                modelDropdown.style.boxShadow = '0px 0px 10px 3px rgba(255, 204, 0, 0.8)'; // Glow effect
+                // Gradually revert back to normal after 1.5 seconds
+                setTimeout(() => {
+                    modelDropdown.style.backgroundColor = originalDropdownStyles.backgroundColor;
+                    modelDropdown.style.color = originalDropdownStyles.color;
+                    modelDropdown.style.boxShadow = originalDropdownStyles.boxShadow;
+                }, 1500);
+            }
+        }
+
+        autolabel.style.display = 'none'; // Hide the autolabel button at initialization
+        showRemarkLabel.style.display = 'none'; // Hide the checkbox at initialization
+
+        // Set dropdown to default text at initialization
+        resetModelDropdown(false); // Keep it hidden at initialization
+
+        modelDropdown.addEventListener('click', function(event) {
+            event.stopPropagation(); // Prevent clicks from propagating
+            // Toggle the display based on its current state
+            // menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+            modelDropdownMenu.style.display = modelDropdownMenu.style.display === 'block' ? 'none' : 'block';
+        });
+        // Hide the menu when clicking outside it
+        document.addEventListener('click', function() {
+            modelDropdownMenu.style.display = 'none';
+        });
+
+        // Populate the menu when 'modelsReceived' event is dispatched
+        document.addEventListener('modelsAVAILABLE', function(event) {
+            remarkField.textContent = '';
+            remarkField.classList.remove('show');
+            remarkField.style.display = 'none'; // Hide & clear the model remark field
+            toggleRemarkVisibility.checked = false; // Uncheck the "Show" checkbox too (so we start from a clean slate)
+            autolabel.style.display = 'none'; // Hide the autolabel button when a new file is selected and new available models are received
+            showRemarkLabel.style.display = 'none'; // Hide the checkbox
+            const models = event.detail.models;
+            populateModelDropdown(models, modelDropdownMenu);
+            // Reset the dropdown when new models are received
+            resetModelDropdown(true);
+        });
+
+        // Add a click listener to the Auto-label button
+        autolabel.addEventListener('click', function() {
+            if (selectedModel) {
+                document.dispatchEvent(new CustomEvent('modelSelected', {detail: { model: selectedModel}}));
+                console.log('---> Auto-label button clicked:', selectedModel);
+            } else {
+                console.error('No model selected!');
+            }
+        });
+
+        // Listen for remarkofmodel here too, to display the remark in the new field
+        //    Visibility depends on the checkbox's state
+        document.addEventListener('remarkofmodel', function(event) {
+            const { remark } = event.detail;
+            remarkField.textContent = remark || '';
+
+            // The remark field only appears if "Show" is checked and we have content
+            if (toggleRemarkVisibility.checked && remark) {
+                remarkField.style.display = 'flex';
+                remarkField.classList.add('show'); // Apply the animation
+            } else {
+                // remarkField.style.display = 'none';
+                remarkField.classList.remove('show');
+                setTimeout(() => {
+                    remarkField.style.display = 'none'; // Hide it properly after animation
+                }, 300); // Wait for transition to complete before hiding
+
+            }
+        });
+
+        // Checkbox change => show/hide remark
+        toggleRemarkVisibility.addEventListener('change', function() {
+            if (this.checked && remarkField.textContent.trim() !== '') {
+                remarkField.style.display = 'flex';
+                remarkField.classList.add('show');
+            } else {
+                remarkField.classList.remove('show');
+                setTimeout(() => {
+                    remarkField.style.display = 'none';
+                }, 300);
+            }
+        });
+
+        function populateModelDropdown(models, menu) {
+            menu.innerHTML = ''; // Clear existing items
+            for (const [modelName, modelDetails] of Object.entries(models)) {
+                const item = document.createElement('div');
+                item.textContent = modelName;
+                item.classList.add('model-dropdown-item');
+                // Create a details div
+                const details = document.createElement('div');
+                details.classList.add('model-dropdown-details');
+                details.textContent = modelDetails.ShortDescription || "No short description";
+                // Ensure positioning is correct
+                item.style.position = 'relative';
+                details.style.position = 'absolute';
+                // Add hover event listeners (to ensure details show properly)
+                item.appendChild(details);
+                item.addEventListener('mouseenter', function () {
+                    details.style.display = 'block';
+                });
+                item.addEventListener('mouseleave', function () {
+                    details.style.display = 'none';
+                });
+                // Add click functionality for selecting the model
+                item.onclick = function(event) {
+                    event.stopPropagation(); // Prevent this click from closing the menu
+                    selectModel(modelName, modelDetails.Remarks); // Pass model name and remark
+                    modelDropdownMenu.style.display = 'none'; // Hide the menu after selection
+                };
+                modelDropdownMenu.appendChild(item);
+            };
+            // Now add the "+" button below all items
+            const addBtn = document.createElement('div');
+            addBtn.classList.add('model-add-btn');
+            addBtn.textContent = '+';
+
+            // Optional: handle click on the plus
+            addBtn.addEventListener('click', function(event) {
+                event.stopPropagation();
+                console.log("User clicked the + button");
+                // ...your logic here (maybe open a form, dispatch an event, etc.)
+            });
+            modelDropdownMenu.appendChild(addBtn);
+        }
+
+        // selectModel => reveal auto-label & "Show" checkbox, dispatch remarkofmodel, etc.
+        function selectModel(modelName, remark) {
+            console.log('Selected model:', modelName, 'Remark:', remark);
+            selectedModel = modelName; // Save the selected model
+            // Update displayed text
+            modelDropdown.textContent = modelName + ' ▼'; 
+            // Centering logic based on text content
+            modelDropdown.style.textAlign = 'center'; // Ensure text is centered
+            modelDropdown.style.width = `${modelName.length * 10 + 10}px`; // Adjust width dynamically
+            // Show the autolabel button and checkbox when a model is selected
+            autolabel.style.display = 'block'; // Show the autolabel button when a model is selected
+            showRemarkLabel.style.display = 'flex'; // Show the checkbox
+            // Default the checkbox to checked => remark is shown
+            toggleRemarkVisibility.checked = true;
+            // Dispatch the event
+            document.dispatchEvent(new CustomEvent('remarkofmodel', {detail: { remark: remark }}));
+        }
+    });
+</script>

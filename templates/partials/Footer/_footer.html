@@ -1,0 +1,122 @@
+
+<!-- Footer: 'partials/Footer/_footer.html' -->
+<style>
+    .sticky-footer {
+        height: 70px;
+        background-color: #0a0a0a;
+        color: white;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        padding-top: 10px;
+        flex-shrink: 0; /* Prevent shrinking */
+    }
+
+    .footer-buttons {
+        align-self: center;
+        padding-bottom: 5px; /* Added padding to avoid touching the top line */
+    }
+
+    .footer-button {
+        margin-right: 50px; /* or 100px*/
+        padding: 12px 50px;
+        background-color: rgb(197, 196, 196);
+        color: rgb(27, 25, 25);
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: transform 0.3s ease;
+    }
+
+    .username-green {
+        /* color: green; */
+        color: blue;
+        font-weight: bold;
+    }
+
+    .footer-button:last-child {
+        margin-right: 0; /* No margin for the last button */
+    }
+
+    .footer-button:active {
+        transform: scale(0.9);
+    }
+
+    .footer-text {
+        text-align: center;
+        margin: 5px 0 10px;
+        padding: 0;
+        font-size: 14px;
+    }
+
+
+</style>
+
+<footer class="sticky-footer">
+    <div class="footer-buttons">
+        <button type="button" onclick="location.href='#'" class="footer-button" id="undoButton">
+            <strong>Undo</strong>
+        </button>
+        <button type="button" onclick="location.href='#'" class="footer-button" id="refreshButton">
+            <strong>Refresh</strong>
+        </button>
+        <button type="button" onclick="location.href='#'" class="footer-button" id="saveButton">
+            <strong>Save</strong>
+        </button>
+        <button type="button" onclick="location.href='#'" class="footer-button" id="AllSaveButton">
+            <strong>Save All</strong>
+        </button>
+        <!-- Logout Button -->
+        <form method="post" action="{% url 'home:logout' %}" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" class="footer-button" id="logoutButton">
+                <strong>Logout</strong>
+            </button>
+        </form>
+        <!-- Add other buttons -->
+    </div>
+    <p class="footer-text">Copyright &copy; 2025 NYCU/FCA Lab labeling tool. All rights reserved.</p>
+</footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Listen for the 'Receive_data event' to get the username and update the logout button
+        document.addEventListener('Receive_data', function(event) {
+            const username = event.detail.User_name;
+            const logoutButton = document.getElementById('logoutButton');
+            logoutButton.innerHTML = `<strong>Logout <span class="username-green">${username}</span></strong>`;
+            console.log("   The Logout button was updated with the username included.");
+        });
+
+        document.getElementById('undoButton').addEventListener('click', function() {
+            console.log('Undo button clicked');
+            console.log("   Dispatching 'buttonClick' event dispatched with action: 'undo'.");
+            document.dispatchEvent(new CustomEvent('buttonClick', { detail: { action: 'undo' } }));
+        });
+
+        document.getElementById('refreshButton').addEventListener('click', function() {
+            console.log('Refresh button clicked');
+            console.log("   Dispatching 'buttonClick' event dispatched with action: 'refresh'.");
+            document.dispatchEvent(new CustomEvent('buttonClick', { detail: { action: 'refresh' } }));
+        });
+
+        document.getElementById('saveButton').addEventListener('click', function() {
+            console.log("Save button clicked");
+            console.log("   Dispatching 'buttonClick' event dispatched with action: 'save'.");
+            document.dispatchEvent(new CustomEvent('buttonClick', { detail: { action: 'save' } }));
+        });
+
+        document.getElementById('AllSaveButton').addEventListener('click', function() {
+            console.log("'Save All' button clicked");
+            console.log("   Dispatching 'buttonClick' event dispatched with action: 'SaveAll'.");
+            document.dispatchEvent(new CustomEvent('buttonClick', { detail: { action: 'SaveAll' } }));
+        });
+
+        document.getElementById('logoutButton').addEventListener('click', function() {
+            console.log("'Logout' button clicked");
+        });
+    });
+</script>
+<!-- End of Footer -->

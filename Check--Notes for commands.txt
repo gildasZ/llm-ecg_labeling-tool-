@@ -1,0 +1,176 @@
+With the virtual environment (virt env):
+	Get pipenv, better than venv:			pip install pipenv
+	Create your virt env:				pipenv install
+	Or create while installing 1st package:		pipenv install <package-name>
+	Activate with: 					'pipenv shell'
+	Check if virt env in powershell (shows packages): 'pip freeze'
+	For installing packages, better use:		pipenv install <package-name>
+	To created a TXT file with exact versions: 	pip freeze > requirements.txt
+	To install everything as in the file:		pip install -r requirements.txt
+	To update the Pipfile and Pipfile.lock files of the virt env:	pipenv install -r requirements.txt
+	Deactivate with: 				'deactivate' or 'exit'
+
+____________________________________________________________________
+My WebApp accounts:
+	Account:	Admin
+	Password:	@A12345678
+
+	Account:	Admin2
+	Password:	@A12345678
+
+	Account:	Admin3
+	Password:	@A12345678
+--------------------------------------------------------------------
+
+____________________________________________________________________
+For redis:
+	Install the Redis executable:
+		Redis-x64-5.0.14.1.msi 
+	Or go to:
+		https://github.com/tporadowski/redis/releases
+	and download the latest release and install 
+--------------------------------------------------------------------
+
+____________________________________________________________________
+Check bootstraps: 	https://startbootstrap.com/theme/sb-admin-2 
+--------------------------------------------------------------------
+
+____________________________________________________________________
+Check how to make git or gihub repos for app version management.
+--------------------------------------------------------------------
+
+
+____________________________________________________________________
+For static files: 
+	If you have new folders or files to add, 
+		add them in the static folder under the master project (Label_V01/label_V01/static) 
+		and rerun 
+		"python manage.py collectstatic"
+--------------------------------------------------------------------
+
+About PostgreSQL 16:
+	Port No:		5432
+	Pwd: 			12345
+	Search:			pqAdmin 4 						-> (App)
+	Search:			SQL Shell (psql)					-> (Terminal)
+	Change pwd:		\password postgres					-> (In terminal)
+	Create databse:		CREATE DATABASE data_base_name OWNER postgres;
+	Check database:		\l
+
+About PostgreSQL 17:
+	Port No:		5432
+	Pwd: 			12345
+	Search:			pqAdmin 4 						-> (App)
+	Search:			SQL Shell (psql)					-> (Terminal)
+	Change pwd:		\password postgres					-> (In terminal)
+	Create databse:		CREATE DATABASE data_base_name OWNER postgres;
+	Check database:		\l
+--------------------------------------------------------------------
+Run migrations to set up the database schema:
+
+	python manage.py makemigrations
+	python manage.py migrate
+
+Collect static files:
+
+	python manage.py collectstatic
+
+To run the application, execute the following command:
+
+	python manage.py runserver
+	python manage.py runserver 0.0.0.0:8000 (access with other devices on same network)
+
+To get an address for anyone on the net:
+
+	Install ngrok from 'https://ngrok.com/' --> Follow steps
+
+	Run: 
+		ngrok http 8000
+		or
+		ngrok http http://localhost:8000
+
+	Get an address, e.g.:
+		 https://d277-1-164-100-136.ngrok-free.app
+
+--------------------------------------------------------------------
+
+____________________________________________________________________
+Dockerization:
+	chmod +x entrypoint.sh
+	docker-compose build
+
+	docker-compose up
+	docker-compose down
+
+--------------------------------------------------------------------
+
+____________________________________________________________________
+Installing Redis. 
+	It is not officially supported by Windows.
+	So here are the steps:
+		1. 	Enable WSL2 (Windows Subsystem for Linux). 
+			WSL2 lets you run Linux binaries natively on Windows.
+			For this method to work, you'll need to be running Windows 10 version 2004 and higher or Windows 11.
+
+			Open Windows PowerShell with Administrive privilege and:
+				---
+					Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
+				---
+				and you will see:
+
+				Path          :
+				Online        : True
+				RestartNeeded : False
+
+		2. 	Then:
+				---
+					start ms-windows-store:
+				---
+				and it will open Microsoft Store.
+
+		3.	Then search:
+				---
+					Ubuntu
+				---
+				and download it and open it.
+
+		4.	For "Enter new UNIX username:", I used:
+				---
+					gilda
+				---
+
+		5.	For the password, I used:
+				---
+					12345
+				---
+
+		6.	Then go on this website to 'Install Redis on Windows':
+				---
+					https://developer.redis.com/create/windows
+				---
+
+
+--------------------------------------------------------------------
+
+____________________________________________________________________
+Display all folders and there child folders:
+Get-ChildItem -Path "C:\Users\gilda\OneDrive\Documents\_NYCU\Master's Thesis\LABORATORY\Labeling Tool\Label-V01" -Recurse -Directory | ForEach-Object {
+    Write-Output $_.FullName
+}
+--------------------------------------------------------------------
+
+____________________________________________________________________
+Install dash-2.9.3 to solve page not loading error:			pip install dash==2.9
+--------------------------------------------------------------------
+
+____________________________________________________________________
+Clean up expired sessions:						python manage.py clearsessions
+--------------------------------------------------------------------
+
+____________________________________________________________________
+Clear Caches and Static Files:						python manage.py collectstatic --noinput --clear
+Flushing Redis data:							redis-cli flushall
+--------------------------------------------------------------------
+
+
+

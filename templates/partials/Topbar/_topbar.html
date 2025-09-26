@@ -1,0 +1,118 @@
+
+<!-- partials/Topbar/_topbar.html -->
+
+<!-- Adding Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<style>
+    .navbar {
+        display: flex;          /* Default flex-direction will be row' if not specified */
+        flex-direction: row;    /* Horizontal layout to include elements */
+        height: 50px;
+        width: 100%;            /* Take full width of the parent */
+        background-color: #353434;
+        justify-content: space-between; /* Adjust alignment */
+        overflow: hidden;
+        flex-shrink: 0; /* Prevent shrinking */
+    }
+    
+    .filename-container {
+        overflow-x: auto;
+        overflow-y: hidden; /* Disable vertical scrolling */
+        width: 50%; /* Reduced width */
+        max-width: 1500px; /* Can be adjusted */
+        border: 5px solid #575757;
+        box-sizing: border-box;
+        padding: 5px 10px;
+        height: 95%;
+        display: flex;
+        justify-content: center; /* Center content horizontally */
+        align-items: center; /* Center content vertically */
+        border-radius: 10px;
+        margin-left: 30px; /* Control the left margin of the filename display */
+    }
+
+    #topBarText {
+        color: #FFFFFF; /* Default color for the container */
+        display: flex;
+        align-items: center;
+    }
+
+    .file-prefix {
+        color: #4fa1ee; /* Blue color for prefixes */
+        font-weight: bold;
+        font-size: 14px; /* Smaller size for the prefix */
+        font-family: Arial, sans-serif; /* Specific font for the prefix */
+        white-space: nowrap;
+        margin-left: 50px;
+    }
+
+    .file-name {
+        color: #FFFFFF; /* White color for the file name */
+        font-weight: bold;
+        font-size: 16px; /* Larger size for the file name */
+        margin-left: 10px; /* Spacing between prefix and file name */
+    }
+
+    .severity-prefix {
+        color: #fa1717; /* Blue color for prefixes */
+        font-weight: bold;
+        font-size: 14px; /* Smaller size for the prefixes */
+        font-family: Arial, sans-serif; /* Specific font for prefixes */
+    }
+
+    .severity-level {
+        color: #FFFFFF; /* White color for the dynamic text */
+        font-weight: bold;
+        display: inline;
+        font-size: 16px; /* Larger size for the dynamic text */
+        margin-left: 10px; /* Spacing between prefix and dynamic text */
+        white-space: nowrap; /* Prevent wrapping */
+        overflow-x: auto; /* Enable horizontal scrolling if necessary */
+    }
+
+    .severity-container {
+        margin-right: 30px; /* Right margin for symmetry */
+        overflow-x: auto;
+        overflow-y: hidden; /* Disable vertical scrolling */
+        width: 50%; /* Reduced width */
+        max-width: 600px; /* Can be adjusted */
+        border: 5px solid #575757;
+        box-sizing: border-box;
+        padding: 5px 10px;
+        height: 95%;
+        display: flex;
+        justify-content: center; /* Center content horizontally */
+        align-items: center; /* Center content vertically */
+        border-radius: 10px;
+    }
+</style>
+
+<nav class="navbar">
+    <div class="filename-container">
+        <p id="topBarText">
+            <span class="file-prefix">Selected File:</span>
+            <span id="fileName" class="file-name"></span>
+        </p>
+    </div>
+    <div class="severity-container">
+        <p id="severityText">
+            <span class="severity-prefix">Severity:</span>
+            <span id='severity-level' class="severity-level">(Only valid for ECG data.)</span> <!-- Dynamically updated -->
+        </p>
+    </div>
+    <!-- Error Message Container -->
+    <div id="error-container" style="display: none;">
+        <p id="error-message" style="color: #FF6347; font-weight: bold;"></p> <!-- Customizable styles for error message -->
+    </div>
+</nav>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('fileSelected', function(event) {
+            const fileName = event.detail.fileName;
+            document.getElementById('fileName').textContent = fileName;
+        });
+    });
+</script>
+<!-- End of Topbar -->

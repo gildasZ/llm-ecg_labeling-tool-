@@ -1,0 +1,110 @@
+
+<!-- home/templates/home/register.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register</title>
+    <style>
+        /* Simple popup styling */
+        .popup {
+            display: none;
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            border: 1px solid #333;
+            padding: 20px;
+            background-color: #fff;
+            z-index: 1000;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+    </style>
+    <script>
+        function togglePassword() {
+            var passwordField1 = document.getElementById("id_password1");
+            var passwordField2 = document.getElementById("id_password2");
+            if (passwordField1.type === "password") {
+                passwordField1.type = "text";
+                passwordField2.type = "text";
+            } else {
+                passwordField1.type = "password";
+                passwordField2.type = "password";
+            }
+        }
+
+        function showPopup(message) {
+            var popup = document.getElementById('popup');
+            var overlay = document.getElementById('popup-overlay');
+            var popupMessage = document.getElementById('popup-message');
+            popupMessage.innerHTML = message;
+            popup.style.display = 'block';
+            overlay.style.display = 'block';
+        }
+
+        function closePopup() {
+            var popup = document.getElementById('popup');
+            var overlay = document.getElementById('popup-overlay');
+            popup.style.display = 'none';
+            overlay.style.display = 'none';
+        }
+
+        function registerUser() {
+            var form = document.querySelector('form');
+            var formData = new FormData(form);
+
+            fetch("{% url 'home:register' %}", {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showPopup('Registration successful! You can now <a href="{% url "home:login" %}">login</a>.');
+                } else {
+                    var errorMessage = 'Registration failed. Please try again.';
+                    if (data.errors) {
+                        errorMessage += '<br><ul>';
+                        for (const [field, errors] of Object.entries(data.errors)) {
+                            errors.forEach(error => {
+                                errorMessage += `<li>${field}: ${error}</li>`;
+                            });
+                        }
+                        errorMessage += '</ul>';
+                    }
+                    showPopup(errorMessage);
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+    <h2>Register</h2>
+    <form method="post" onsubmit="event.preventDefault(); registerUser();">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Register</button>
+    </form>
+    <p>Already have an account? <a href="{% url 'home:login' %}">Login here</a></p>
+    <input type="checkbox" onclick="togglePassword()"> Show Password
+
+    <!-- Popup -->
+    <div id="popup-overlay" class="popup-overlay"></div>
+    <div id="popup" class="popup">
+        <p id="popup-message"></p>
+        <button onclick="closePopup()">Close</button>
+    </div>
+</body>
+</html>

@@ -1,0 +1,6 @@
+label,value,Color
+0,No trend,black
+1,Moderate negative trend,orange
+2,Very strong negative trend,red
+3,Moderate positive trend,green
+4,Very strong positive trend,blue

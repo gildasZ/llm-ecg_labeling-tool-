@@ -1,0 +1,40 @@
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+.env
+.env.*
+Pipfile
+Pipfile.lock
+
+# Django / App specific
+db.sqlite3*
+staticfiles_collected/
+media/
+*.log
+*.pot
+*.py[cod]
+
+# IDE / OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Other specific ignores from your gitignore
+ALL_MODELS.zip
+Check--Notes for commands.txt
+Testing_existence.csv
+_Testing_Codes_Folder/
+ALL_MODELS/
