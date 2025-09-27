@@ -1,63 +1,62 @@
 
 <!-- partials/Bodypart/_bodypart_textual_explanation.html -->
+<!-- partials/Bodypart/_bodypart_textual_explanation.html -->
 <style>
     .textual-explanation {
         display: flex;
-        flex-direction: column; /* Stack containers vertically */
-        height: 100%; /* 100% height of its parent container */
-        width: 20%; /* Relative to the width of its parent container*/
+        flex-direction: column; /* Stack header and content vertically */
+        height: 100%; 
+        width: 20%; 
         background-color: #353434;
         box-sizing: border-box;
         border: 3px solid #575757; 
         border-radius: 10px;
-        /* padding-right: 25px; Adjust spacing on the right to balance with the border thickness */
     }
 
     .text-top {
         display: flex;
         height: 40px;
-        width: 100%; /* Same width as parent container */
+        flex-shrink: 0; /* KEY CHANGE: Prevent the header from shrinking */
+        width: 100%;
         align-items: center;
         justify-content: center;
         background-color: #353434;
         box-sizing: border-box;
         border-bottom: 3px solid #575757;
-        border-radius: 10px;
-        color: #E0E0E0; /* Light grey text */
+        border-radius: 10px 10px 0 0;
+        color: #E0E0E0;
         font-weight: bold;
         font-size: 20px;
     }
 
+    /* KEY CHANGE: This container will now grow to fill the available space */
     .text-bottom {
-        display: flex;
-        flex-direction: column; /* ADD THIS: To stack history and input vertically */
-        min-height: 40px; 
-        max-height: 200px;
+        flex-grow: 1; /* Make this container fill the remaining vertical space */
+        display: flex; /* It is ALSO a flex container for its children */
+        flex-direction: column; /* Stacking history ON TOP of input */
+        min-height: 0; /* Prevents overflow issues in flex children */
         width: 100%;
         background-color: #353434;
         box-sizing: border-box;
         border-top: 3px solid #575757;
-        border-radius: 10px;
-        padding: 0; /* CHANGE THIS: Remove padding from the main container */
-        overflow-y: hidden; /* CHANGE THIS: We will control overflow on the inner history div */
-        color: #E0E0E0;
-        font-weight: bold;
-        font-size: 18px;
+        border-radius: 0 0 10px 10px; /* Adjust border radius */
     }
 
+    /* KEY CHANGE: This history area is now the flexible part that shrinks/grows */
     .llm-history-container {
-        flex-grow: 1;
-        overflow-y: auto;
+        flex: 1 1 auto; /* Shorthand for: grow, shrink, basis */
+        overflow-y: auto; /* Allow history to scroll */
+        padding: 1px;
         font-size: 14px;
         line-height: 1.4;
-        padding: 1px; /* ADD THIS: Add padding here instead of parent */
-        /* margin-bottom: 10px; <-- REMOVE THIS */
+        color: #E0E0E0;
     }
     .history-item {
         margin-bottom: 10px;
         padding: 5px;
         border-radius: 4px;
         word-wrap: break-word;
+        font-weight: normal; /* Use normal font weight for history text */
     }
     .history-item.response {
         background-color: #2a2a2a;
@@ -67,51 +66,57 @@
         margin-bottom: 3px;
         color: #afafaf;
         font-size: 12px;
+        font-weight: bold;
     }
+
+    /* KEY CHANGE: This input area is now fixed at the bottom of the flex column */
     .llm-input-container {
-        flex-shrink: 0;
-        position: relative; 
-        padding: 1px; /* ADD THIS: Give the input area its own padding */
-        border-top: 3px solid #575757; /* ADD THIS: Visually separate from history */
+        flex-shrink: 0; /* Prevent this container from shrinking */
+        position: relative; /* For the send button */
+        padding: 1px;
+        border-top: 3px solid #575757;
     }
+
     #llm-prompt-input {
+        display: block; /* Ensure it behaves as a block element */
         width: 100%;
-        min-height: 40px; /* CHANGE THIS: Set a minimum height */
-        height: 60px;   /* Default starting height */
+        min-height: 40px;
+        max-height: 150px; /* Prevent it from growing too large */
         background-color: #505050;
         color: #E0E0E0;
         border: 1px solid #067794;
         border-radius: 5px;
         padding: 8px 45px 8px 8px;
         font-size: 14px;
+        font-weight: normal;
         resize: vertical;
         box-sizing: border-box;
     }
+
     #llm-prompt-submit {
-        position: absolute;         /* Position inside the parent container */
-        right: 18px;                /* CHANGE THIS: 10px padding + 8px margin */
-        bottom: 18px;               /* CHANGE THIS: 10px padding + 8px margin */
-        width: 32px;                /* Make it circular */
-        height: 32px;               /* Make it circular */
-        border-radius: 50%;         /* Make it circular */
+        position: absolute;
+        right: 18px;
+        bottom: 18px;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
         background-color: #505050;
         border: 1px solid #888;
         cursor: pointer;
-        display: flex;              /* Center the icon */
-        align-items: center;        /* Center the icon */
-        justify-content: center;    /* Center the icon */
-        padding: 0;                 /* Remove padding to help with centering */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
         transition: all 0.2s ease-in-out;
     }
     #llm-prompt-submit:hover {
-        background-color: #6a6a6a; /* Lighter grey on hover */
+        background-color: #6a6a6a;
         transform: scale(1.1);
     }
-
     #llm-prompt-submit svg {
         width: 18px;
         height: 18px;
-        fill: #E0E0E0; /* Icon color */
+        fill: #E0E0E0;
     }
 </style>
 
