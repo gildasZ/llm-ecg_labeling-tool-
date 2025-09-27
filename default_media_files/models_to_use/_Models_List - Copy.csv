@@ -1,4 +1,0 @@
-Model Name,Model File,Remarks
-GRU Model 1,Classif_GRU_Model_epoch_15617.pth,Best performing model!
-GRU Model 2,Classif_GRU_Model_epoch_15895.pth,Second best performing model!
-GRU Model 3,Classif_GRU_Model_epoch_15616.pth,Third best performing model!

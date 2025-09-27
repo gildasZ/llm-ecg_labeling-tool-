@@ -25,9 +25,9 @@ Make sure you have the following installed on your machine:
 1.  **⬇️ Clone the Repository:**
     Clone the project repository:
     ```bash
-    git clone https://github.com/gildasZ/automated-time-series-labeler.git
+    git clone https://github.com/gildasZ/llm-ecg_labeling-tool.git
     # Navigate into the project directory
-    cd automated-time-series-labeler
+    cd llm-ecg_labeling-tool
     ```
 
 2.  **📄 Set up Environment Variables:**

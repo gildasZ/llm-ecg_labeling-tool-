@@ -1,7 +1,0 @@
-Model Name,Model File,Remarks
-Base Model,BiGRUWithAttention_epoch_1192.pth,Base Bidirectional GRU model with attention mechanism. Achieved the highest base validation accuracy of 96.72%.
-Period 2 Model,BiGRUWithAttention_epoch_88.pth,Period 2 Bidirectional GRU model with attention mechanism. Achieved an overall accuracy of 96.46%.
-Period 3 Model,BiGRUWithAttention_epoch_1163.pth,Period 3 Bidirectional GRU model with attention mechanism. Achieved an overall accuracy of 96.62%.
-Period 4 Model,BiGRUWithAttention_epoch_129.pth,Period 4 Bidirectional GRU model with attention mechanism. Achieved an overall accuracy of 96.80%.
-Period 5 Model,BiGRUWithAttention_epoch_1072.pth,Period 5 Bidirectional GRU model with attention mechanism. Achieved an overall accuracy of 97.20%.
-Simple GRU Model,Classif_GRU_Model_epoch_15617.pth,Simple GRU Model

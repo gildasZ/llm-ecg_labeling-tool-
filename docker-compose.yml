@@ -4,7 +4,7 @@ services:
   # PostgreSQL Database Service
   db:
     image: postgres:15-alpine # Use a specific version, alpine is smaller
-    container_name: labelv03_db
+    container_name: labelv04_db
     volumes:
       - postgres_data:/var/lib/postgresql/data/ # Persist data
     environment:
@@ -23,7 +23,7 @@ services:
   # Redis Service
   redis:
     image: redis:alpine # Use alpine for smaller size
-    container_name: labelv03_redis
+    container_name: labelv04_redis
     volumes:
       - redis_data:/data # Optional persistence for Redis data
     # ports:
@@ -38,7 +38,7 @@ services:
   # Django Web Application Service
   web:
     build: . # Build from Dockerfile in the current directory
-    container_name: labelv03_web
+    container_name: labelv04_web
     # The command is now defined in the Dockerfile's CMD via ENTRYPOINT
     # command: daphne -b 0.0.0.0 -p 8000 label_V04.asgi:application
     env_file:

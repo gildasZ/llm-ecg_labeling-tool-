@@ -1,7 +1,3 @@
 Model Name,Model File,Remarks,Short Description
-Base Model,Classif_GRU_Model_epoch_15617.pth,Base Bidirectional GRU model with attention mechanism. Achieved the highest base validation accuracy of 96.72%.,Accuracy of 96.72%.
-Period 2 Model,Classif_GRU_Model_epoch_15617.pth,Period 2 Bidirectional GRU model with attention mechanism. Achieved an overall accuracy of 96.46%.,Accuracy of 96.46%.
-Period 3 Model,Classif_GRU_Model_epoch_15617.pth,Period 3 Bidirectional GRU model with attention mechanism. Achieved an overall accuracy of 96.62%.,Accuracy of 96.62%.
-Period 4 Model,Classif_GRU_Model_epoch_15617.pth,Period 4 Bidirectional GRU model with attention mechanism. Achieved an overall accuracy of 96.80%.,Accuracy of 96.80%.
-Period 5 Model,Classif_GRU_Model_epoch_15617.pth,Period 5 Bidirectional GRU model with attention mechanism. Achieved an overall accuracy of 97.20%.,Accuracy of 97.20%.
+LLM Auto-labeling,Classif_GRU_Model_epoch_15617.pth,LLM rule-based time-series labeling,Accuracy of 90.03%.
 Simple GRU Model,Classif_GRU_Model_epoch_15617.pth,Simple GRU Model,Accuracy of +85%.
