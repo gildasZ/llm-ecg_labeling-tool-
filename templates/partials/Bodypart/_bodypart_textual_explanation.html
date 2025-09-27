@@ -1,16 +1,16 @@
 
 <!-- partials/Bodypart/_bodypart_textual_explanation.html -->
-<!-- partials/Bodypart/_bodypart_textual_explanation.html -->
 <style>
     .textual-explanation {
         display: flex;
         flex-direction: column; /* Stack header and content vertically */
-        height: 100%; 
+        height: 100%;
         width: 20%; 
         background-color: #353434;
         box-sizing: border-box;
         border: 3px solid #575757; 
         border-radius: 10px;
+        overflow: hidden; /* Important: prevent the panel itself from growing */
     }
 
     .text-top {
@@ -35,31 +35,47 @@
         display: flex; /* It is ALSO a flex container for its children */
         flex-direction: column; /* Stacking history ON TOP of input */
         min-height: 0; /* Prevents overflow issues in flex children */
+        max-height: 200px;
         width: 100%;
         background-color: #353434;
         box-sizing: border-box;
         border-top: 3px solid #575757;
         border-radius: 0 0 10px 10px; /* Adjust border radius */
+        overflow: hidden;   /* NEW: push scrolling responsibility to the history */
     }
 
     /* KEY CHANGE: This history area is now the flexible part that shrinks/grows */
     .llm-history-container {
         flex: 1 1 auto; /* Shorthand for: grow, shrink, basis */
-        overflow-y: auto; /* Allow history to scroll */
-        padding: 1px;
+        overflow-y: auto;   /* scroll here, not the container */
+        overflow-x: hidden; /* avoid horizontal scrollbars on long tokens */
+        padding: 5px;
         font-size: 14px;
         line-height: 1.4;
         color: #E0E0E0;
+        min-height: 0; /* <<< ADD THIS LINE */
+
+        /* better line breaking for long words/tokens */
+        word-break: break-word;
+        overflow-wrap: anywhere;
     }
     .history-item {
         margin-bottom: 10px;
-        padding: 5px;
-        border-radius: 4px;
+        padding: 8px; /* MODIFIED: Gives messages internal spacing */
+        border-radius: 6px;
         word-wrap: break-word;
         font-weight: normal; /* Use normal font weight for history text */
+
+        max-width: 85%; /* <<< KEY CHANGE 1: Don't let bubbles take full width */
+        width: fit-content; /* Make bubble width adapt to its content */
     }
     .history-item.response {
         background-color: #2a2a2a;
+        margin-right: auto; /* <<< NEW: Explicitly align left */
+    }
+    .history-item.user-prompt {
+        background-color: #405d80; /* A slightly blueish gray for user prompts */
+        margin-left: auto;  /* <<< KEY CHANGE 2: This pushes the item to the right */
     }
     .history-item strong {
         display: block;
@@ -73,7 +89,7 @@
     .llm-input-container {
         flex-shrink: 0; /* Prevent this container from shrinking */
         position: relative; /* For the send button */
-        padding: 1px;
+        padding: 5px; /* MODIFIED: Matches history container */
         border-top: 3px solid #575757;
     }
 
@@ -95,8 +111,8 @@
 
     #llm-prompt-submit {
         position: absolute;
-        right: 18px;
-        bottom: 18px;
+        right: 15px; /* MODIFIED: Adjusts for new padding */
+        bottom: 12px; /* MODIFIED: Adjusts for new padding */
         width: 32px;
         height: 32px;
         border-radius: 50%;
@@ -141,3 +157,87 @@
         </div>
     </div>
 </aside>
+
+<!-- ======================= NEW SCRIPT BLOCK ======================= -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const submitButton = document.getElementById('llm-prompt-submit');
+    const promptInput = document.getElementById('llm-prompt-input');
+    const historyContainer = document.getElementById('llm-history');
+
+    // --- Function to add a message to the history and auto-scroll ---
+    function addToHistory(text, type) {
+        const historyItem = document.createElement('div');
+        historyItem.classList.add('history-item');
+        historyItem.classList.add(type === 'user' ? 'user-prompt' : 'response');
+
+        const author = document.createElement('strong');
+        author.textContent = (type === 'user') ? 'You:' : 'AI:';
+
+        const message = document.createElement('span');
+        message.textContent = text;
+
+        historyItem.appendChild(author);
+        historyItem.appendChild(message);
+        historyContainer.appendChild(historyItem);
+
+        // Auto-scroll to the bottom
+        historyContainer.scrollTop = historyContainer.scrollHeight;
+    }
+
+    // --- Function to handle the submission ---
+    function handleSubmit() {
+        const promptText = promptInput.value.trim();
+        
+        // Don't do anything if the input is empty
+        if (promptText === '') {
+            return;
+        }
+
+        // 1. Add the user's prompt to the history UI
+        addToHistory(promptText, 'user');
+
+        // 2. Dispatch the custom event for other components to hear
+        const event = new CustomEvent('llm_instruction_sent', {
+            detail: { 
+                prompt: promptText 
+            }
+        });
+        document.dispatchEvent(event);
+        console.log('Dispatched "llm_instruction_sent" event with prompt:', promptText);
+
+        // 3. Clear the input textarea
+        promptInput.value = '';
+        
+        // For demo purposes, you can add a temporary "Thinking..." message
+        addToHistory('Processing instruction...', 'ai');
+    }
+
+    // --- Event Listeners ---
+    // Listen for click on the submit button
+    submitButton.addEventListener('click', handleSubmit);
+
+    // Listen for 'Enter' key press in the textarea (but allow Shift+Enter for new lines)
+    promptInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault(); // Prevents adding a new line
+            handleSubmit();
+        }
+    });
+    
+    // --- Listener for AI Responses (to be triggered by your main websocket script) ---
+    // This part is for completing the visual feedback loop.
+    document.addEventListener('llm_response_received', function(event) {
+        // First, remove the "Processing..." message.
+        const lastHistoryItem = historyContainer.lastElementChild;
+        if (lastHistoryItem && lastHistoryItem.querySelector('span').textContent === 'Processing instruction...') {
+            historyContainer.removeChild(lastHistoryItem);
+        }
+        
+        // Then, add the actual response from the AI
+        const responseText = event.detail.response;
+        addToHistory(responseText, 'ai');
+    });
+
+});
+</script>
