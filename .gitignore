@@ -13,6 +13,9 @@ media/Raw_Time_Series_Data_CSV_Annotations/**
 # Ignore PyTorch model files in ALL_MODELS and its subdirectories
 ALL_MODELS/**/*.pth
 
+# Just ignore all of it
+media/
+
 # Ignore all compiled Python files
 *.pyc
 __pycache__/

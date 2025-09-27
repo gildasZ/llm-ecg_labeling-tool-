@@ -3,6 +3,7 @@
 <style>
     .Area-for-labeled-patterns {
         display: flex;
+        height: 100%; /* Make this wrapper stretch to the full height of the parent */
         /* height: 100%; 400px 100% height of its parent container */
         width: 80%; /* Relative to the width of its parent container */
         background-color: #6e5ec4;
@@ -12,7 +13,8 @@
     .labeled-patterns { /* Change border color to Red */
         display: flex;
         /* height: 100%; 100% height of its parent container */
-        max-height: 200px;
+        /* max-height: 200px; */
+        height: 100%; /* Make this wrapper stretch to the full height of the parent */
         width: 100%; /* Relative to the width of its parent container*/
         background-color: #353434;
         color: #FFFFFF; /* White text */

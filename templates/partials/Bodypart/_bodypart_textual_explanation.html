@@ -30,32 +30,109 @@
 
     .text-bottom {
         display: flex;
+        flex-direction: column; /* ADD THIS: To stack history and input vertically */
         min-height: 40px; 
         max-height: 200px;
         width: 100%;
-        /* align-items: center;
-        justify-content: center; */
         background-color: #353434;
         box-sizing: border-box;
         border-top: 3px solid #575757;
         border-radius: 10px;
-        padding-top: 5px;
-        padding-right: 20px;
-        padding-bottom: 20px;
-        padding-left: 20px;
-        /* padding: 5px 20px 20px 20px; padding-top, padding-right, padding-bottom, padding-left */
-        overflow-y: auto; /* Vertical overflow */
-        color: #E0E0E0; /* Light grey text */
+        padding: 0; /* CHANGE THIS: Remove padding from the main container */
+        overflow-y: hidden; /* CHANGE THIS: We will control overflow on the inner history div */
+        color: #E0E0E0;
         font-weight: bold;
         font-size: 18px;
+    }
+
+    .llm-history-container {
+        flex-grow: 1;
+        overflow-y: auto;
+        font-size: 14px;
+        line-height: 1.4;
+        padding: 1px; /* ADD THIS: Add padding here instead of parent */
+        /* margin-bottom: 10px; <-- REMOVE THIS */
+    }
+    .history-item {
+        margin-bottom: 10px;
+        padding: 5px;
+        border-radius: 4px;
+        word-wrap: break-word;
+    }
+    .history-item.response {
+        background-color: #2a2a2a;
+    }
+    .history-item strong {
+        display: block;
+        margin-bottom: 3px;
+        color: #afafaf;
+        font-size: 12px;
+    }
+    .llm-input-container {
+        flex-shrink: 0;
+        position: relative; 
+        padding: 1px; /* ADD THIS: Give the input area its own padding */
+        border-top: 3px solid #575757; /* ADD THIS: Visually separate from history */
+    }
+    #llm-prompt-input {
+        width: 100%;
+        min-height: 40px; /* CHANGE THIS: Set a minimum height */
+        height: 60px;   /* Default starting height */
+        background-color: #505050;
+        color: #E0E0E0;
+        border: 1px solid #067794;
+        border-radius: 5px;
+        padding: 8px 45px 8px 8px;
+        font-size: 14px;
+        resize: vertical;
+        box-sizing: border-box;
+    }
+    #llm-prompt-submit {
+        position: absolute;         /* Position inside the parent container */
+        right: 18px;                /* CHANGE THIS: 10px padding + 8px margin */
+        bottom: 18px;               /* CHANGE THIS: 10px padding + 8px margin */
+        width: 32px;                /* Make it circular */
+        height: 32px;               /* Make it circular */
+        border-radius: 50%;         /* Make it circular */
+        background-color: #505050;
+        border: 1px solid #888;
+        cursor: pointer;
+        display: flex;              /* Center the icon */
+        align-items: center;        /* Center the icon */
+        justify-content: center;    /* Center the icon */
+        padding: 0;                 /* Remove padding to help with centering */
+        transition: all 0.2s ease-in-out;
+    }
+    #llm-prompt-submit:hover {
+        background-color: #6a6a6a; /* Lighter grey on hover */
+        transform: scale(1.1);
+    }
+
+    #llm-prompt-submit svg {
+        width: 18px;
+        height: 18px;
+        fill: #E0E0E0; /* Icon color */
     }
 </style>
 
 <aside class="textual-explanation">
     <div class="text-top">
-        Notes/Remarks:
+        AI Assistant
     </div>
     <div class="text-bottom">
-        <p>Notes will be added here!</p>
+        <div id="llm-history" class="llm-history-container">
+            <div class="history-item response">
+                <strong>AI:</strong>
+                <span>Ready for instructions.</span>
+            </div>
+        </div>
+        <div class="llm-input-container">
+            <textarea id="llm-prompt-input" placeholder="e.g., Change 'No trend' after 18:00..."></textarea>
+            <button id="llm-prompt-submit" title="Send Instruction">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z"/>
+                </svg>
+            </button>
+        </div>
     </div>
 </aside>
